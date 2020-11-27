@@ -9,6 +9,7 @@ public class RawSchema {
     public static class Entity {
         public String name;
         public List<String> lk;
+        public String lkSeparator;
         public List<Field> fields;
         public String displayName;
 
@@ -21,9 +22,10 @@ public class RawSchema {
             public boolean required;
             public Dictionary dict;
             public ArrayType array;
+            public Select select;
 
             public enum Type {
-                STRING, INTEGER, BOOL, OBJECT, DICTIONARY, ENUM, ARRAY
+                STRING, INTEGER, BOOL, OBJECT, DICTIONARY, ENUM, ARRAY, SELECT
             }
 
             public static class ObjectType {
@@ -39,7 +41,16 @@ public class RawSchema {
                 public ObjectType object;
                 public ArrayType array;
                 public List<String> enums;
+            }
 
+            public static class Select {
+                public List<SelectElem> elems;
+
+                public static class SelectElem {
+                    public String value;
+                    public String displayName;
+                    public List<String> driveFields;
+                }
             }
         }
     }

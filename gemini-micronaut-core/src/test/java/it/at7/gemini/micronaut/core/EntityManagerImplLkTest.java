@@ -12,42 +12,28 @@ import javax.inject.Inject;
 import java.util.Map;
 
 @MicronautTest
-class EntityManagerImplBaseTypesTest {
+class EntityManagerImplLkTest {
 
     @Inject
     EntityManager entityManager;
 
     @Test
     void testInsert() throws EntityNotFoundException, FieldConversionException, DuplicateLkRecordException, EntityRecordValidationException {
-        Entity basetypes = entityManager.get("BASETYPES");
+        Entity basetypes = entityManager.get("MULTIPLELK");
         Assertions.assertNotNull(basetypes);
 
-        EntityDataManager btManager = entityManager.getDataManager("BASETYPES");
+        EntityDataManager btManager = entityManager.getDataManager("MULTIPLELK");
         Map<String, Object> newRecFields = Map.of(
-                "stringField", "lk",
-                "booleanField", true,
-                "enumField", "E1",
-                "intField", 42,
-                "objectField", Map.of("st", "inner string"),
-                "dictField", Map.of("dictkey1", Map.of("st", "dictValueSt")),
-                "selectField", "S1"
+                "id1", "lk",
+                "id2", "lk2"
         );
         DataResult<EntityRecord> added = btManager.add(newRecFields);
+        Assertions.assertEquals("lk_lk2",added.getData().getLkString());
 
         EntityRecord data = added.getData();
         Map<String, Object> returnedMapConverted = data.getData();
         Assertions.assertEquals(newRecFields, returnedMapConverted);
     }
 
-
-    @Test
-    void testRequiredException() throws EntityNotFoundException, FieldConversionException, DuplicateLkRecordException, EntityRecordValidationException {
-        EntityRecordValidationException resp = Assertions.assertThrows(EntityRecordValidationException.class, () -> {
-            EntityDataManager dm = entityManager.getDataManager("TESTVALIDATION");
-            dm.add(Map.of("stringField", "lk"));
-        });
-        EntityRecord.ValidationResult validation = resp.getValidation();
-        Assertions.assertFalse(validation.isValid());
-    }
 
 }

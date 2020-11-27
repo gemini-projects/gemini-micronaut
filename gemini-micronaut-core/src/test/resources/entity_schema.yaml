@@ -27,7 +27,27 @@ entity:
         fields:
           - name: st
             type: STRING
+    - name: selectField
+      type: SELECT
+      select:
+        elems:
+          - value: S1
+            displayName: "SELECT 1"
+          - value: S2
+            displayName: "SELECT 2"
 
+---
+### ENTITY: Multiple LK
+type: ENTITY
+entity:
+  name: MULTIPLELK
+  lk: [id1, id2]
+  lkSeparator: _
+  fields:
+    - name: id1
+      type: STRING
+    - name: id2
+      type: STRING
 
 ---
 ### ENTITY: test validations

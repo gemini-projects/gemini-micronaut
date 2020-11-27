@@ -36,23 +36,29 @@ class DataControllerGET_Test {
     EntityManager entityManager;
 
     Map<String, Object> newRecFields;
+    Map<String, Object> newRecMultipleLkFields;
 
     @BeforeAll
     void addSomeData() throws EntityNotFoundException, FieldConversionException, DuplicateLkRecordException, EntityRecordValidationException {
         EntityDataManager basetypes = entityManager.getDataManager("basetypes");
         // lk for get
-
         newRecFields = Map.of(
                 "stringField", "lk",
                 "booleanField", true,
                 "enumField", "E1",
                 "intField", 42,
                 "objectField", Map.of("st", "inner string"),
-                "dictField", Map.of("dictkey1", Map.of("st", "dictValueSt"))
+                "dictField", Map.of("dictkey1", Map.of("st", "dictValueSt")),
+                "selectField", "S1"
         );
-
         basetypes.add(newRecFields);
 
+        EntityDataManager multiplelk = entityManager.getDataManager("MULTIPLELK");
+        newRecMultipleLkFields = Map.of(
+                "id1", "lk",
+                "id2", "lk2"
+        );
+        multiplelk.add(newRecMultipleLkFields);
     }
 
     @Test
@@ -81,6 +87,18 @@ class DataControllerGET_Test {
         Map<String, Object> record = (Map<String, Object>) gr.getData();
         Assertions.assertNotNull(record);
         Assertions.assertEquals(newRecFields, record);
+    }
+
+    @Test
+    void getByIdMultipleLk() {
+        HttpResponse<GeminiHttpResponse> resp = client.toBlocking().exchange(HttpRequest.GET("/multiplelk/lk_lk2"), GeminiHttpResponse.class);
+        Assertions.assertEquals(resp.getStatus(), HttpStatus.OK);
+        Optional<GeminiHttpResponse> body = resp.getBody();
+        Assertions.assertTrue(body.isPresent());
+        GeminiHttpResponse gr = body.get();
+        Map<String, Object> record = (Map<String, Object>) gr.getData();
+        Assertions.assertNotNull(record);
+        Assertions.assertEquals(newRecMultipleLkFields, record);
     }
 
     @Test

@@ -29,6 +29,7 @@ class DataControllerPOST_Test {
     HttpClient client;
 
     Map<String, Object> newRecFields;
+    Map<String, Object> newRecFieldsMultipleLk;
 
     @Test
     void post() {
@@ -38,7 +39,8 @@ class DataControllerPOST_Test {
                 "enumField", "E1",
                 "intField", 42,
                 "objectField", Map.of("st", "inner string"),
-                "dictField", Map.of("dictkey1", Map.of("st", "dictValueSt"))
+                "dictField", Map.of("dictkey1", Map.of("st", "dictValueSt")),
+                "selectField", "S1"
         );
         HttpResponse<GeminiHttpResponse> resp = client.toBlocking().exchange(HttpRequest.POST("/basetypes",
                 Map.of("data", newRecFields)), GeminiHttpResponse.class);
@@ -48,6 +50,22 @@ class DataControllerPOST_Test {
         GeminiHttpResponse geminiHttpResponse = body.get();
         Map<String, Object> data = (Map<String, Object>) geminiHttpResponse.getData();
         Assertions.assertEquals(newRecFields, data);
+    }
+
+    @Test
+    void postMultipleLk() {
+        newRecFieldsMultipleLk = Map.of(
+                "id1", "lk",
+                "id2", "lk2"
+        );
+        HttpResponse<GeminiHttpResponse> resp = client.toBlocking().exchange(HttpRequest.POST("/multiplelk",
+                Map.of("data", newRecFieldsMultipleLk)), GeminiHttpResponse.class);
+        Assertions.assertEquals(resp.getStatus(), HttpStatus.OK);
+        Optional<GeminiHttpResponse> body = resp.getBody();
+        Assertions.assertTrue(body.isPresent());
+        GeminiHttpResponse geminiHttpResponse = body.get();
+        Map<String, Object> data = (Map<String, Object>) geminiHttpResponse.getData();
+        Assertions.assertEquals(newRecFieldsMultipleLk, data);
     }
 
     @Test

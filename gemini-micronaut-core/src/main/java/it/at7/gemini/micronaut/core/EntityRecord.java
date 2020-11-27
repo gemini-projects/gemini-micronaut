@@ -5,10 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class EntityRecord {
     private final static Logger logger = LoggerFactory.getLogger(EntityRecord.class);
@@ -31,13 +28,19 @@ public class EntityRecord {
     }
 
     public String getLkString() throws FieldConversionException {
-        return getLkString("");
+        return getLkString(entity.getLkSeparator());
     }
 
     public String getLkString(String separator) throws FieldConversionException {
         StringBuilder res = new StringBuilder();
-        for (Field lkField : this.entity.getLkFields()) {
+        this.entity.getLkFields().iterator();
+        Iterator<Field> iterator = this.entity.getLkFields().iterator();
+        while (iterator.hasNext()) {
+            Field lkField = iterator.next();
             res.append(FieldConverter.toStringValue(lkField, store.get(lkField.getName()), separator));
+            if (iterator.hasNext()) {
+                res.append(separator);
+            }
         }
         return res.toString();
     }

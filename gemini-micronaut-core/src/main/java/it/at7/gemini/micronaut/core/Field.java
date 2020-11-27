@@ -24,7 +24,7 @@ public class Field {
         this.arrayType = arrayType;
         this.required = required;
         this.arrayDept = arrayDept;
-        if (type.equals(Type.ENUM)) {
+        if (type.equals(Type.ENUM) || type.equals(Type.SELECT)) {
             CheckArgument.notEmpty(enums, "enums required for ENUM type");
         }
         if (type.equals(Type.OBJECT)) {
@@ -97,6 +97,9 @@ public class Field {
                 break;
             case DICTIONARY:
                 builder.dictionaryType(field.dict.fields.stream().map(Field::from).collect(Collectors.toList()));
+                break;
+            case SELECT:
+                builder.selectType(field.select);
                 break;
             default:
                 throw new RuntimeException(String.format("Raw Field %s not convertible", field.name));
@@ -240,6 +243,12 @@ public class Field {
             return this;
         }
 
+        public Builder selectType(RawSchema.Entity.Field.Select select) {
+            this.type = Type.SELECT;
+            this.enums = select.elems.stream().map(f -> f.value).collect(Collectors.toList());
+            return this;
+        }
+
         public Field build() {
             return new Field(name, type, required, enums, innerFields, arrayType, arrayDept);
         }
@@ -250,7 +259,7 @@ public class Field {
     }
 
     public enum Type {
-        STRING, INTEGER, BOOL, OBJECT, ENUM, ARRAY, DICTIONARY
+        STRING, INTEGER, BOOL, OBJECT, ENUM, ARRAY, DICTIONARY, SELECT
     }
 
     @Override

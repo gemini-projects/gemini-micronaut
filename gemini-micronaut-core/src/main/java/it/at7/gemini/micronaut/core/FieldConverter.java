@@ -24,6 +24,7 @@ public class FieldConverter {
             case DICTIONARY:
                 return dictionaryValue(field, value);
             case ENUM:
+            case SELECT:
                 return enumValue(field, value);
             case ARRAY: {
                 return arrayValue(field, value);

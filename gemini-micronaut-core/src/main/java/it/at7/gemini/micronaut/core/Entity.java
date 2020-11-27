@@ -13,19 +13,25 @@ import java.util.stream.Collectors;
 public class Entity {
     private String name;
     private final List<String> lk;
+    private final String lkSeparator;
     private final Map<String, Field> fields;
 
-    private Entity(String name, List<String> lk, Map<String, Field> fields) {
+    private Entity(String name, List<String> lk, String lkSeparator, Map<String, Field> fields) {
         CheckArgument.notEmpty(name, "name required");
         CheckArgument.notEmpty(fields, "fields required");
         lk.forEach(l -> CheckArgument.isTrue(fields.containsKey(normalizeFieldName(l)), "Fields must have " + l));
         this.name = name;
         this.lk = List.copyOf(lk);
+        this.lkSeparator = lkSeparator;
         this.fields = Map.copyOf(fields);
     }
 
     public String getName() {
         return name;
+    }
+
+    public String getLkSeparator() {
+        return lkSeparator;
     }
 
     public List<Field> getLkFields() {
@@ -44,6 +50,7 @@ public class Entity {
             builder.addField(field);
         }
         builder.setLk(entity.lk);
+        builder.setLKSeparator(rawSchema.entity.lkSeparator);
         return builder.build();
     }
 
@@ -84,6 +91,7 @@ public class Entity {
 
         private String name;
         private List<String> lk;
+        private String lkSeparator;
         private Map<String, Field> fields = new HashMap<>();
 
         public Builder(String name) {
@@ -99,8 +107,12 @@ public class Entity {
             this.fields.put(normalizeFieldName(entityField.getName()), entityField);
         }
 
+        public void setLKSeparator(String lkSeparator) {
+            this.lkSeparator = lkSeparator == null ? "" : lkSeparator;
+        }
+
         public Entity build() {
-            return new Entity(name, lk, fields);
+            return new Entity(name, lk, lkSeparator, fields);
         }
     }
 
