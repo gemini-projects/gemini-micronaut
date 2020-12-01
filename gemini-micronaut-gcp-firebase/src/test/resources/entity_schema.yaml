@@ -27,3 +27,5 @@ entity:
         fields:
           - name: st
             type: STRING
+    - name: filterString
+      type: STRING

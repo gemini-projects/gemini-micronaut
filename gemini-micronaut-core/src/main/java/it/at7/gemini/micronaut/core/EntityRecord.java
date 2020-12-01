@@ -4,6 +4,7 @@ import it.at7.gemini.micronaut.exception.FieldConversionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import java.util.*;
 
@@ -27,6 +28,11 @@ public class EntityRecord {
         return Map.copyOf(this.store);
     }
 
+    @Nullable
+    public Object get(String field) {
+        return store.get(field);
+    }
+
     public String getLkString() throws FieldConversionException {
         return getLkString(entity.getLkSeparator());
     }
@@ -37,9 +43,12 @@ public class EntityRecord {
         Iterator<Field> iterator = this.entity.getLkFields().iterator();
         while (iterator.hasNext()) {
             Field lkField = iterator.next();
-            res.append(FieldConverter.toStringValue(lkField, store.get(lkField.getName()), separator));
-            if (iterator.hasNext()) {
-                res.append(separator);
+            Object value = get(lkField.getName());
+            if(value != null) {
+                res.append(FieldConverter.toStringValue(lkField, value, separator));
+                if (iterator.hasNext()) {
+                    res.append(separator);
+                }
             }
         }
         return res.toString();

@@ -4,10 +4,7 @@ import it.at7.gemini.micronaut.exception.EntityFieldNotFoundException;
 import it.at7.gemini.micronaut.schema.RawSchema;
 
 import javax.validation.constraints.NotNull;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Entity {
@@ -87,6 +84,22 @@ public class Entity {
         return this.lk.contains(normalizeFieldName(field));
     }
 
+    public List<Field> getFieldsFromPath(String fieldName) throws EntityFieldNotFoundException {
+        String[] splitted = fieldName.split("\\.");
+        List<Field> ret = new ArrayList<>();
+        Field lastField = getField(splitted[0]);
+        ret.add(lastField);
+        for (int i = 1; i < splitted.length; i++) {
+            switch (lastField.getType()) {
+                case OBJECT:
+                    lastField =  getField(lastField.getInnerFields(), splitted[i]);
+                    ret.add(lastField);
+                    break;
+            }
+        }
+        return ret;
+    }
+
     public static class Builder {
 
         private String name;
@@ -115,6 +128,15 @@ public class Entity {
             return new Entity(name, lk, lkSeparator, fields);
         }
     }
+
+    private Field getField(Map<String, Field> fields, String field) throws EntityFieldNotFoundException {
+        CheckArgument.notEmpty(field, "Entity: please provide a valid field");
+        Field f = fields.get(normalizeFieldName(field));
+        if (f == null)
+            throw new EntityFieldNotFoundException(field, this);
+        return f;
+    }
+
 
     public static String normalizeName(@NotNull String entityName) {
         return entityName.toUpperCase();

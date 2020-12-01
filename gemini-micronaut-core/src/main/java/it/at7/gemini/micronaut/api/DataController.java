@@ -22,10 +22,10 @@ public class DataController {
     EntityManager entityManager;
 
     @Get
-    HttpResponse<GeminiHttpResponse> get(@PathVariable("entity") String entityName, HttpRequest httpRequest) throws EntityNotFoundException, FieldConversionException {
+    HttpResponse<GeminiHttpResponse> get(@PathVariable("entity") String entityName, HttpRequest httpRequest) throws EntityNotFoundException, FieldConversionException, EntityFieldNotFoundException {
         RequestUtils.crateAndSetTimeLogger(logger, httpRequest, "GET-ENTITY", entityName);
         EntityDataManager entityDataManager = this.entityManager.getDataManager(entityName);
-        DataListResult<EntityRecord> records = entityDataManager.getRecords(null);
+        DataListResult<EntityRecord> records = entityDataManager.getRecords(DataListRequest.from(httpRequest));
         return RequestUtils.readyResponse(records, httpRequest);
     }
 

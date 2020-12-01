@@ -23,7 +23,7 @@ public class EntityDataManagerImpl implements EntityDataManager {
     }
 
     @Override
-    public DataListResult<EntityRecord> getRecords(DataListRequest dataListRequest) throws FieldConversionException {
+    public DataListResult<EntityRecord> getRecords(DataListRequest dataListRequest) throws FieldConversionException, EntityFieldNotFoundException {
         return this.persistenceEntityDataManager.getRecords(this.entity, dataListRequest);
     }
 

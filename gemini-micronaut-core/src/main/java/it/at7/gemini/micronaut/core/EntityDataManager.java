@@ -8,7 +8,7 @@ public interface EntityDataManager {
 
     Entity getEntity();
 
-    DataListResult<EntityRecord> getRecords(DataListRequest dataListRequest) throws FieldConversionException;
+    DataListResult<EntityRecord> getRecords(DataListRequest dataListRequest) throws FieldConversionException, EntityFieldNotFoundException;
 
     default DataResult<EntityRecord> getRecord(String id) throws EntityRecordNotFoundException, FieldConversionException {
         return getRecord(id, null);

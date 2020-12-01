@@ -10,6 +10,7 @@ import io.micronaut.context.annotation.Primary;
 import io.micronaut.context.annotation.Value;
 import it.at7.gemini.micronaut.core.*;
 import it.at7.gemini.micronaut.exception.DuplicateLkRecordException;
+import it.at7.gemini.micronaut.exception.EntityFieldNotFoundException;
 import it.at7.gemini.micronaut.exception.EntityRecordNotFoundException;
 import it.at7.gemini.micronaut.exception.FieldConversionException;
 
@@ -20,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+
+import static it.at7.gemini.firebase.FieldFilter.fieldFilter;
 
 @Singleton
 @Primary
@@ -45,9 +48,14 @@ public class PersistenceEntityDataManagerImpl implements PersistenceEntityDataMa
     }
 
     @Override
-    public DataListResult<EntityRecord> getRecords(Entity entity, DataListRequest dataListRequest) throws FieldConversionException {
-        // TODO add filtering
-        ApiFuture<QuerySnapshot> future = db.collection(getEntityCollectionName(entity)).get();
+    public DataListResult<EntityRecord> getRecords(Entity entity, DataListRequest dataListRequest) throws FieldConversionException, EntityFieldNotFoundException {
+        Query query = db.collection(getEntityCollectionName(entity));
+        if (!dataListRequest.getFilters().isEmpty()) {
+            for (DataListRequest.Filter filter : dataListRequest.getFilters()) {
+                query = fieldFilter(query, entity, filter);
+            }
+        }
+        ApiFuture<QuerySnapshot> future = query.get();
         List<EntityRecord> res = new ArrayList<>();
         try {
             List<QueryDocumentSnapshot> documents = future.get().getDocuments();
@@ -135,7 +143,7 @@ public class PersistenceEntityDataManagerImpl implements PersistenceEntityDataMa
         try {
             String lkString = entityRecord.getLkString();
             DocumentReference document = db
-                    .collection(entityRecord.getEntity().getName())
+                    .collection(getEntityCollectionName(entityRecord.getEntity()))
                     .document(lkString);
 
             ApiFuture<WriteResult> delete = document.delete();
