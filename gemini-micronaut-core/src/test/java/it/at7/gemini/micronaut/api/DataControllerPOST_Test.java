@@ -93,4 +93,13 @@ class DataControllerPOST_Test {
         Map<String, Object> enumfield = (Map<String, Object>) fieldErrors.get("enumField");
         Assertions.assertEquals("REQUIRED", enumfield.get("error"));
     }
+
+    @Test
+    void postExceptionSingleEntiyRecordField() {
+        HttpClientResponseException httpClientResponseException = Assertions.assertThrows(HttpClientResponseException.class, () -> {
+            HttpResponse<Object> exchange = client.toBlocking().exchange(HttpRequest.POST("/singlerec",
+                    Map.of("unk", "unk")));
+        });
+        Assertions.assertEquals(httpClientResponseException.getStatus(), HttpStatus.METHOD_NOT_ALLOWED);
+    }
 }

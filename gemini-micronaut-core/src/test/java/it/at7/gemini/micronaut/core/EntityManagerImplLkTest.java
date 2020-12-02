@@ -18,7 +18,7 @@ class EntityManagerImplLkTest {
     EntityManager entityManager;
 
     @Test
-    void testInsert() throws EntityNotFoundException, FieldConversionException, DuplicateLkRecordException, EntityRecordValidationException {
+    void testInsert() throws Exception {
         Entity basetypes = entityManager.get("MULTIPLELK");
         Assertions.assertNotNull(basetypes);
 

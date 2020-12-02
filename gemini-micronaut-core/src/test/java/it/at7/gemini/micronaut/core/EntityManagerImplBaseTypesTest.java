@@ -18,7 +18,7 @@ class EntityManagerImplBaseTypesTest {
     EntityManager entityManager;
 
     @Test
-    void testInsert() throws EntityNotFoundException, FieldConversionException, DuplicateLkRecordException, EntityRecordValidationException {
+    void testInsert() throws Exception {
         Entity basetypes = entityManager.get("BASETYPES");
         Assertions.assertNotNull(basetypes);
 

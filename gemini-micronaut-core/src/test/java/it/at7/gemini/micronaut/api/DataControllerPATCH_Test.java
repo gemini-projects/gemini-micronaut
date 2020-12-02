@@ -37,7 +37,7 @@ class DataControllerPATCH_Test {
     EntityManager entityManager;
 
     @BeforeAll
-    void addSomeData() throws EntityNotFoundException, FieldConversionException, DuplicateLkRecordException, EntityRecordValidationException {
+    void addSomeData() throws Exception {
         EntityDataManager basetypes = entityManager.getDataManager("basetypes");
 
         basetypes.add(Map.of("stringField", "patch_lk",

@@ -12,6 +12,8 @@ public class RawSchema {
         public String lkSeparator;
         public List<Field> fields;
         public String displayName;
+        public boolean singleRecord;
+        public String lkValue;
 
         public static class Field {
             public String name;

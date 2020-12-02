@@ -2,7 +2,8 @@ package it.at7.gemini.firebase;
 
 import io.micronaut.test.annotation.MicronautTest;
 import it.at7.gemini.micronaut.core.*;
-import it.at7.gemini.micronaut.exception.*;
+import it.at7.gemini.micronaut.exception.DuplicateLkRecordException;
+import it.at7.gemini.micronaut.exception.EntityRecordNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -26,7 +27,7 @@ class PersistenceEntityDataManagerImplIT {
     String dateTest;
 
     @BeforeAll
-    void addSomeData() throws EntityNotFoundException, FieldConversionException, DuplicateLkRecordException, EntityRecordValidationException {
+    void addSomeData() throws Exception {
         EntityDataManager basetypes = entityManager.getDataManager("BASETYPES");
         dateTest = new Date().toInstant().toString();
         basetypes.add(Map.of("stringField", "lkf1" + dateTest,
@@ -40,7 +41,7 @@ class PersistenceEntityDataManagerImplIT {
     }
 
     @Test
-    void getWithFilter() throws EntityNotFoundException, FieldConversionException, EntityFieldNotFoundException {
+    void getWithFilter() throws Exception {
         EntityDataManager btManager = entityManager.getDataManager("BASETYPES");
         DataListResult<EntityRecord> records = btManager.getRecords(DataListRequest.builder()
                 .addFilter("filterString", DataListRequest.OPE_TYPE.EQUALS, "F1" + dateTest)
@@ -50,7 +51,7 @@ class PersistenceEntityDataManagerImplIT {
     }
 
     @Test
-    void add() throws EntityNotFoundException, FieldConversionException, EntityRecordValidationException, DuplicateLkRecordException {
+    void add() throws Exception {
         Entity basetypes = entityManager.get("BASETYPES");
         Assertions.assertNotNull(basetypes);
 
@@ -77,7 +78,7 @@ class PersistenceEntityDataManagerImplIT {
     }
 
     @Test
-    void update() throws EntityNotFoundException, FieldConversionException, DuplicateLkRecordException, EntityRecordValidationException, EntityRecordNotFoundException, EntityFieldNotFoundException {
+    void update() throws Exception {
         Entity basetypes = entityManager.get("BASETYPES");
         Assertions.assertNotNull(basetypes);
 
@@ -111,7 +112,7 @@ class PersistenceEntityDataManagerImplIT {
     }
 
     @Test
-    void delete() throws FieldConversionException, DuplicateLkRecordException, EntityRecordValidationException, EntityRecordNotFoundException, EntityNotFoundException {
+    void delete() throws Exception {
         Entity basetypes = entityManager.get("BASETYPES");
         Assertions.assertNotNull(basetypes);
 

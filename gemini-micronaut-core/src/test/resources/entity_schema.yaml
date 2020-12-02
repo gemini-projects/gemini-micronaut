@@ -66,3 +66,21 @@ entity:
     - name: booleanField
       type: BOOL
 
+
+---
+### ENTITY: single record
+type: ENTITY
+entity:
+  name: SINGLEREC
+  singleRecord: true
+  fields:
+    - name: stringField
+      type: STRING
+    - name: enumField
+      type: ENUM
+      enums: [E1, E2, E3]
+    - name: booleanField
+      type: BOOL
+    - name: intField
+      type: INTEGER
+

@@ -42,8 +42,11 @@ public class DataController {
     @Post
     HttpResponse<GeminiHttpResponse> post(@PathVariable("entity") String entityName,
                                           @Body DataRequest body,
-                                          HttpRequest<Map<String, Object>> httpRequest) throws EntityNotFoundException, FieldConversionException, DuplicateLkRecordException, EntityRecordValidationException {
-          RequestUtils.crateAndSetTimeLogger(logger, httpRequest, "POST-ENTITY", entityName);
+                                          HttpRequest<Map<String, Object>> httpRequest) throws EntityNotFoundException, FieldConversionException, DuplicateLkRecordException, EntityRecordValidationException, EntitySingleRecordException {
+        RequestUtils.crateAndSetTimeLogger(logger, httpRequest, "POST-ENTITY", entityName);
+        Entity entity = this.entityManager.get(entityName);
+        if (entity.isSingleRecord())
+            throw new EntitySingleRecordException(entity, String.format("POST method not allowed for entity %s", entityName));
         EntityDataManager entityDataManager = this.entityManager.getDataManager(entityName);
         Map<String, Object> data = RequestUtils.getRequestData(body);
         DataResult<EntityRecord> record = entityDataManager.add(data);
@@ -79,10 +82,12 @@ public class DataController {
     @Delete("/{+id}")
     HttpResponse<GeminiHttpResponse> delete(@PathVariable("entity") String entityName,
                                             @PathVariable("id") String id,
-                                            HttpRequest httpRequest) throws EntityNotFoundException, EntityFieldNotFoundException, FieldConversionException, EntityRecordNotFoundException {
+                                            HttpRequest httpRequest) throws EntityNotFoundException, EntityFieldNotFoundException, FieldConversionException, EntityRecordNotFoundException, EntitySingleRecordException {
         RequestUtils.crateAndSetTimeLogger(logger, httpRequest, "DELETE-ENTITY-BYID", entityName + " " + id);
+        Entity entity = this.entityManager.get(entityName);
+        if (entity.isSingleRecord())
+            throw new EntitySingleRecordException(entity, String.format("DELETE method not allowed for entity %s", entityName));
         EntityDataManager entityDataManager = this.entityManager.getDataManager(entityName);
-
         DataResult<EntityRecord> record = entityDataManager.delete(id);
         return RequestUtils.readyResponse(record, httpRequest);
     }
@@ -93,13 +98,6 @@ public class DataController {
         return HttpResponse.status(HttpStatus.BAD_REQUEST)
                 .body(RequestUtils.errorResponseLogger(request, e.getMessage()));
     }
-
-    /* @Error(global = true)
-    public HttpResponse<GeminiHttpResponse> genericGlobalError(HttpRequest request, Throwable e) {
-        String message = e.getMessage() == null ? e.toString() : e.getMessage();
-        return HttpResponse.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(RequestUtils.errorResponseLogger(request, message));
-    } */
 
     @Error(global = true, status = HttpStatus.NOT_FOUND)
     public HttpResponse<GeminiHttpResponse> notFoundError(HttpRequest request) {

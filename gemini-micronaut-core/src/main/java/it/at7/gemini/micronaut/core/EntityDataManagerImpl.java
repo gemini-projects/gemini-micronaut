@@ -33,13 +33,17 @@ public class EntityDataManagerImpl implements EntityDataManager {
     }
 
     @Override
-    public DataResult<EntityRecord> add(Map<String, Object> data) throws FieldConversionException, DuplicateLkRecordException, EntityRecordValidationException {
+    public DataResult<EntityRecord> add(Map<String, Object> data) throws FieldConversionException, DuplicateLkRecordException, EntityRecordValidationException, EntitySingleRecordException {
+        if (entity.isSingleRecord())
+            throw new EntitySingleRecordException(entity, "Adding records is not allowed for single record entities");
         EntityRecord entityRecord = EntityRecord.fromDataMap(getEntity(), data);
         return this.add(entityRecord);
     }
 
     @Override
-    public DataResult<EntityRecord> add(EntityRecord er) throws FieldConversionException, DuplicateLkRecordException, EntityRecordValidationException {
+    public DataResult<EntityRecord> add(EntityRecord er) throws FieldConversionException, DuplicateLkRecordException, EntityRecordValidationException, EntitySingleRecordException {
+        if (entity.isSingleRecord())
+            throw new EntitySingleRecordException(entity, "Adding records is not allowed for single record entities");
         EntityRecord.ValidationResult validation = er.validate();
         if (!validation.isValid())
             throw new EntityRecordValidationException(er, validation);
@@ -48,7 +52,7 @@ public class EntityDataManagerImpl implements EntityDataManager {
 
     @Override
     public DataResult<EntityRecord> fullUpdate(String lk, Map<String, Object> data) throws EntityRecordNotFoundException, FieldConversionException, EntityFieldNotFoundException {
-        DataResult<EntityRecord> record = getRecord(lk, null);
+        DataResult<EntityRecord> record = getRecordCeckingSingleEntityRec(lk);
         EntityRecord er = record.getData();
         er.set(data);
 
@@ -69,7 +73,7 @@ public class EntityDataManagerImpl implements EntityDataManager {
 
     @Override
     public DataResult<EntityRecord> partialUpdate(String lk, Map<String, Object> data) throws FieldConversionException, EntityRecordNotFoundException, EntityFieldNotFoundException {
-        DataResult<EntityRecord> record = getRecord(lk, null);
+        DataResult<EntityRecord> record = getRecordCeckingSingleEntityRec(lk);
         EntityRecord er = record.getData();
         er.set(data);
         return update(er);
@@ -81,9 +85,21 @@ public class EntityDataManagerImpl implements EntityDataManager {
     }
 
     @Override
-    public DataResult<EntityRecord> delete(String id) throws EntityRecordNotFoundException, FieldConversionException {
+    public DataResult<EntityRecord> delete(String id) throws EntityRecordNotFoundException, FieldConversionException, EntitySingleRecordException {
+        if (entity.isSingleRecord())
+            throw new EntitySingleRecordException(entity, "Delete record is not allowed for single record entities");
         DataResult<EntityRecord> record = getRecord(id, null);
         EntityRecord er = record.getData();
         return this.persistenceEntityDataManager.delete(er);
+    }
+
+    private DataResult<EntityRecord> getRecordCeckingSingleEntityRec(String lk) throws FieldConversionException, EntityRecordNotFoundException {
+        try {
+            return getRecord(lk, null);
+        } catch (EntityRecordNotFoundException e) {
+            if (entity.isSingleRecord())
+                return DataResult.from(new EntityRecord(entity));
+            throw e;
+        }
     }
 }

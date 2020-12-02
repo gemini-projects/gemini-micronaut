@@ -38,6 +38,8 @@ public class EntityRecord {
     }
 
     public String getLkString(String separator) throws FieldConversionException {
+        if(entity.isSingleRecord())
+            return entity.getLkSingleRecValue();
         StringBuilder res = new StringBuilder();
         this.entity.getLkFields().iterator();
         Iterator<Field> iterator = this.entity.getLkFields().iterator();

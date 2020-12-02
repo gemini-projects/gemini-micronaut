@@ -37,7 +37,7 @@ class DataControllerDELETE_Test {
     EntityManager entityManager;
 
     @BeforeAll
-    void addSomeData() throws EntityNotFoundException, FieldConversionException, DuplicateLkRecordException, EntityRecordValidationException {
+    void addSomeData() throws Exception {
         EntityDataManager basetypes = entityManager.getDataManager("basetypes");
 
         basetypes.add(Map.of("stringField", "delete_lk",
@@ -70,5 +70,13 @@ class DataControllerDELETE_Test {
             client.toBlocking().exchange(HttpRequest.DELETE("/basetypes/unknown", Map.of()), GeminiHttpResponse.class);
         });
         Assertions.assertEquals(resp.getStatus(), HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void deleteSingleRecordEntityError() {
+        HttpClientResponseException resp = Assertions.assertThrows(HttpClientResponseException.class, () -> {
+            client.toBlocking().exchange(HttpRequest.DELETE("/singlerec/unknown", Map.of()), GeminiHttpResponse.class);
+        });
+        Assertions.assertEquals(resp.getStatus(), HttpStatus.METHOD_NOT_ALLOWED);
     }
 }

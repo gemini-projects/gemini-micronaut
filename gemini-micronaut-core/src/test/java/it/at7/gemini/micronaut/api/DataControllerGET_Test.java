@@ -39,7 +39,7 @@ class DataControllerGET_Test {
     Map<String, Object> newRecMultipleLkFields;
 
     @BeforeAll
-    void addSomeData() throws EntityNotFoundException, FieldConversionException, DuplicateLkRecordException, EntityRecordValidationException {
+    void addSomeData() throws Exception {
         EntityDataManager basetypes = entityManager.getDataManager("basetypes");
         // lk for get
         newRecFields = Map.of(

@@ -2,12 +2,16 @@ package it.at7.gemini.micronaut.core;
 
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Context;
+import io.micronaut.context.annotation.Value;
 import it.at7.gemini.micronaut.exception.EntityNotFoundException;
 import it.at7.gemini.micronaut.schema.RawSchema;
 import it.at7.gemini.micronaut.schema.SchemaLoader;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Context
@@ -17,13 +21,19 @@ public class EntityManagerImpl implements EntityManager {
     private Map<String, RawSchema.Entity> rawSchemaEntities;
     private Map<String, EntityDataManager> entityDataManagerMap;
 
+    @Value("${gemini.entity.schema.lkSingleRecord:}")
+    private String lkSingleRecord;
+
 
     @PostConstruct
     void init(ApplicationContext applicationContext, SchemaLoader schemaLoader) {
+        if (lkSingleRecord != null && !lkSingleRecord.isEmpty())
+            Configurations.setLkSingleRecord(lkSingleRecord);
         Collection<RawSchema> rawSchemas = schemaLoader.load();
         this.rawSchemaEntities = rawSchemas.stream().filter(s -> s.type.equals(RawSchema.Type.ENTITY)).collect(Collectors.toMap(s -> Entity.normalizeName(s.entity.name), s -> s.entity));
         this.entityMap = Map.copyOf(buildEntities(rawSchemas));
         this.entityDataManagerMap = Map.copyOf(buildDataManagers(applicationContext, this.entityMap));
+
     }
 
     @Override

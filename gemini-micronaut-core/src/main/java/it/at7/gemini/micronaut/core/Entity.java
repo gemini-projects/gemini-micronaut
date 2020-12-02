@@ -12,15 +12,24 @@ public class Entity {
     private final List<String> lk;
     private final String lkSeparator;
     private final Map<String, Field> fields;
+    private final boolean singleRecord;
+    private final String lkSingleRecValue;
 
-    private Entity(String name, List<String> lk, String lkSeparator, Map<String, Field> fields) {
+    private Entity(String name, List<String> lk, String lkSeparator, Map<String, Field> fields, boolean singleRecord, String lkSingleRecValue) {
         CheckArgument.notEmpty(name, "name required");
         CheckArgument.notEmpty(fields, "fields required");
-        lk.forEach(l -> CheckArgument.isTrue(fields.containsKey(normalizeFieldName(l)), "Fields must have " + l));
+        if (!singleRecord) {
+            CheckArgument.notEmpty(lk, "This entity must have at least one logical key field");
+            lk.forEach(l -> CheckArgument.isTrue(fields.containsKey(normalizeFieldName(l)), "Fields must have " + l));
+        }
+        if (singleRecord)
+            CheckArgument.notEmpty(lkSingleRecValue, "Single Record Entity must have logical key value");
         this.name = name;
-        this.lk = List.copyOf(lk);
+        this.lk = singleRecord ? List.of() : List.copyOf(lk);
         this.lkSeparator = lkSeparator;
         this.fields = Map.copyOf(fields);
+        this.singleRecord = singleRecord;
+        this.lkSingleRecValue = lkSingleRecValue;
     }
 
     public String getName() {
@@ -39,6 +48,14 @@ public class Entity {
         return fields;
     }
 
+    public boolean isSingleRecord() {
+        return singleRecord;
+    }
+
+    public String getLkSingleRecValue() {
+        return lkSingleRecValue;
+    }
+
     static Entity from(RawSchema rawSchema) {
         RawSchema.Entity entity = rawSchema.entity;
 
@@ -46,9 +63,10 @@ public class Entity {
         for (RawSchema.Entity.Field field : entity.fields) {
             builder.addField(field);
         }
-        builder.setLk(entity.lk);
-        builder.setLKSeparator(rawSchema.entity.lkSeparator);
-        return builder.build();
+        return builder.setLk(entity.lk)
+                .setLKSeparator(rawSchema.entity.lkSeparator)
+                .setSingleRecord(rawSchema.entity.singleRecord, rawSchema.entity.lkValue)
+                .build();
     }
 
     public Field getField(String field) throws EntityFieldNotFoundException {
@@ -92,7 +110,7 @@ public class Entity {
         for (int i = 1; i < splitted.length; i++) {
             switch (lastField.getType()) {
                 case OBJECT:
-                    lastField =  getField(lastField.getInnerFields(), splitted[i]);
+                    lastField = getField(lastField.getInnerFields(), splitted[i]);
                     ret.add(lastField);
                     break;
             }
@@ -106,26 +124,38 @@ public class Entity {
         private List<String> lk;
         private String lkSeparator;
         private Map<String, Field> fields = new HashMap<>();
+        private boolean singleRecord = false;
+        private String lkSingleRecValue;
 
         public Builder(String name) {
             this.name = normalizeName(name);
         }
 
-        private void setLk(List<String> lk) {
-            this.lk = lk.stream().map(Entity::normalizeFieldName).collect(Collectors.toList());
+        private Builder setLk(List<String> lk) {
+            if (lk != null)
+                this.lk = lk.stream().map(Entity::normalizeFieldName).collect(Collectors.toList());
+            return this;
         }
 
-        private void addField(RawSchema.Entity.Field field) {
+        private Builder addField(RawSchema.Entity.Field field) {
             Field entityField = Field.from(field);
             this.fields.put(normalizeFieldName(entityField.getName()), entityField);
+            return this;
         }
 
-        public void setLKSeparator(String lkSeparator) {
+        public Builder setLKSeparator(String lkSeparator) {
             this.lkSeparator = lkSeparator == null ? "" : lkSeparator;
+            return this;
+        }
+
+        public Builder setSingleRecord(boolean singleRecord, String lkValue) {
+            this.singleRecord = singleRecord;
+            this.lkSingleRecValue = lkValue != null && !lkValue.isEmpty() ? lkValue : Configurations.getLkSingleRecord();
+            return this;
         }
 
         public Entity build() {
-            return new Entity(name, lk, lkSeparator, fields);
+            return new Entity(name, lk, lkSeparator, fields, singleRecord, lkSingleRecValue);
         }
     }
 
