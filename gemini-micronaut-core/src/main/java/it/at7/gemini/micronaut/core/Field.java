@@ -101,6 +101,9 @@ public class Field {
             case SELECT:
                 builder.selectType(field.select);
                 break;
+            case B64_IMAGE:
+                builder.b64ImageType();
+                break;
             default:
                 throw new RuntimeException(String.format("Raw Field %s not convertible", field.name));
         }
@@ -249,6 +252,11 @@ public class Field {
             return this;
         }
 
+        public Builder b64ImageType() {
+            this.type = Type.B64_IMAGE;
+            return this;
+        }
+
         public Field build() {
             return new Field(name, type, required, enums, innerFields, arrayType, arrayDept);
         }
@@ -259,7 +267,7 @@ public class Field {
     }
 
     public enum Type {
-        STRING, INTEGER, BOOL, OBJECT, ENUM, ARRAY, DICTIONARY, SELECT
+        STRING, INTEGER, BOOL, OBJECT, ENUM, ARRAY, DICTIONARY, SELECT, B64_IMAGE
     }
 
     @Override

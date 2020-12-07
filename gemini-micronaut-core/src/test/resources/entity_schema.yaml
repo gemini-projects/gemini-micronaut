@@ -35,6 +35,8 @@ entity:
             displayName: "SELECT 1"
           - value: S2
             displayName: "SELECT 2"
+    - name: b64Image
+      type: B64_IMAGE
 
 ---
 ### ENTITY: Multiple LK

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class FieldConverter {
     public static Object toValue(Field field, Object value) throws FieldConversionException {
@@ -26,9 +27,10 @@ public class FieldConverter {
             case ENUM:
             case SELECT:
                 return enumValue(field, value);
-            case ARRAY: {
+            case ARRAY:
                 return arrayValue(field, value);
-            }
+            case B64_IMAGE:
+                return b64Image(field, value);
         }
         throw new FieldConversionException(field, value);
     }
@@ -53,7 +55,7 @@ public class FieldConverter {
     private static Object objectValue(Field field, Object value) throws FieldConversionException {
         if (Map.class.isAssignableFrom(value.getClass())) {
             Map<String, Object> mapValue = (Map<String, Object>) value;
-            if(mapValue.isEmpty())
+            if (mapValue.isEmpty())
                 return null;
             Map<String, Object> objVal = new HashMap<>();
             for (Map.Entry<String, Field> entry : field.getInnerFields().entrySet()) {
@@ -67,7 +69,7 @@ public class FieldConverter {
     private static Object dictionaryValue(Field field, Object value) throws FieldConversionException {
         if (Map.class.isAssignableFrom(value.getClass())) {
             Map<String, Object> mapValue = (Map<String, Object>) value;
-            if(mapValue.isEmpty())
+            if (mapValue.isEmpty())
                 return null;
             Map<String, Object> dictRetValue = new HashMap<>();
             for (Map.Entry<String, Object> entry : mapValue.entrySet()) {
@@ -117,6 +119,18 @@ public class FieldConverter {
                 retValue.add(toIns);
             }
             return retValue;
+        }
+        throw new FieldConversionException(field, value);
+    }
+
+    private static Object b64Image(Field field, Object value) throws FieldConversionException {
+        if (value instanceof String) {
+            String stValue = (String) value;
+
+            //  Pattern.matches("data:image\/[^;]+;base64[^\"]+", stValue);
+            boolean matches = Pattern.matches("data:image/[^;]+;base64[^\"]+", stValue);
+            if (matches)
+                return value;
         }
         throw new FieldConversionException(field, value);
     }
