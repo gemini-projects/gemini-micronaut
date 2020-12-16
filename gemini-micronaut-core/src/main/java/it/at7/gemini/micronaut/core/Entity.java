@@ -8,28 +8,39 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Entity {
-    private String name;
+    private final String name;
     private final List<String> lk;
     private final String lkSeparator;
     private final Map<String, Field> fields;
     private final boolean singleRecord;
     private final String lkSingleRecValue;
+    private final boolean tree;
+    private final String treeParentField;
 
-    private Entity(String name, List<String> lk, String lkSeparator, Map<String, Field> fields, boolean singleRecord, String lkSingleRecValue) {
+    private Entity(String name, List<String> lk, String lkSeparator, Map<String, Field> fields, boolean singleRecord, String lkSingleRecValue, boolean tree, String treeParentField) {
         CheckArgument.notEmpty(name, "name required");
         CheckArgument.notEmpty(fields, "fields required");
         if (!singleRecord) {
-            CheckArgument.notEmpty(lk, "This entity must have at least one logical key field");
+            CheckArgument.notEmpty(lk, "This entity " + name + " must have at least one logical key field");
             lk.forEach(l -> CheckArgument.isTrue(fields.containsKey(normalizeFieldName(l)), "Fields must have " + l));
         }
-        if (singleRecord)
+        if (singleRecord) {
             CheckArgument.notEmpty(lkSingleRecValue, "Single Record Entity must have logical key value");
+        }
+        if (tree) {
+            CheckArgument.notEmpty(treeParentField, "Tree Entity must require a parent field");
+            CheckArgument.isTrue(lk.size() == 1, "Tree Entity must have a single logical key");
+            CheckArgument.isTrue(fields.get(normalizeFieldName(treeParentField)).getType().equals(fields.get(normalizeFieldName(lk.get(0))).getType()), "Parent and lk types must be the same");
+            CheckArgument.isTrue(List.of(Field.Type.STRING, Field.Type.INTEGER).contains(fields.get(normalizeFieldName(lk.get(0))).getType()), "Lk and parent type must be STRING or INTEGER");
+        }
         this.name = name;
         this.lk = singleRecord ? List.of() : List.copyOf(lk);
         this.lkSeparator = lkSeparator;
         this.fields = Map.copyOf(fields);
         this.singleRecord = singleRecord;
         this.lkSingleRecValue = lkSingleRecValue;
+        this.tree = tree;
+        this.treeParentField = treeParentField;
     }
 
     public String getName() {
@@ -56,6 +67,14 @@ public class Entity {
         return lkSingleRecValue;
     }
 
+    public boolean isTree() {
+        return tree;
+    }
+
+    public String getTreeParentField() {
+        return treeParentField;
+    }
+
     static Entity from(RawSchema rawSchema) {
         RawSchema.Entity entity = rawSchema.entity;
 
@@ -66,6 +85,7 @@ public class Entity {
         return builder.setLk(entity.lk)
                 .setLKSeparator(rawSchema.entity.lkSeparator)
                 .setSingleRecord(rawSchema.entity.singleRecord, rawSchema.entity.lkValue)
+                .setTree(rawSchema.entity.tree)
                 .build();
     }
 
@@ -126,6 +146,8 @@ public class Entity {
         private Map<String, Field> fields = new HashMap<>();
         private boolean singleRecord = false;
         private String lkSingleRecValue;
+        private boolean tree = false;
+        private String treeParentField;
 
         public Builder(String name) {
             this.name = normalizeName(name);
@@ -154,8 +176,16 @@ public class Entity {
             return this;
         }
 
+        public Builder setTree(RawSchema.Entity.Tree tree) {
+            if (tree != null) {
+                this.tree = tree.enabled;
+                this.treeParentField = tree.parentField == null ? "parent" : tree.parentField;
+            }
+            return this;
+        }
+
         public Entity build() {
-            return new Entity(name, lk, lkSeparator, fields, singleRecord, lkSingleRecValue);
+            return new Entity(name, lk, lkSeparator, fields, singleRecord, lkSingleRecValue, tree, treeParentField);
         }
     }
 

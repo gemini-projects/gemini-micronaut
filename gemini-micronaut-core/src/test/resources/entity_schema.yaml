@@ -86,3 +86,27 @@ entity:
     - name: intField
       type: INTEGER
 
+---
+### ENTITY: tree Entity
+type: ENTITY
+entity:
+  name: TREE_ENTITY
+  lk: [id]
+  tree:
+    enabled: true
+    parentField: parent
+  fields:
+    - name: id
+      type: STRING
+    - name: parent
+      type: STRING
+    - name: stringField
+      type: STRING
+    - name: enumField
+      type: ENUM
+      enums: [E1, E2, E3]
+    - name: booleanField
+      type: BOOL
+    - name: intField
+      type: INTEGER
+

@@ -14,6 +14,7 @@ public class RawSchema {
         public String displayName;
         public boolean singleRecord;
         public String lkValue;
+        public Tree tree;
 
         public static class Field {
             public String name;
@@ -54,6 +55,11 @@ public class RawSchema {
                     public List<String> driveFields;
                 }
             }
+        }
+
+        public static class Tree {
+            public boolean enabled;
+            public String parentField;
         }
     }
 
