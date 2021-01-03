@@ -12,7 +12,7 @@ public interface PersistenceEntityDataManager {
 
     DataResult<EntityRecord> add(EntityRecord entityRecord) throws FieldConversionException, DuplicateLkRecordException;
 
-    DataResult<EntityRecord> update(EntityRecord record) throws FieldConversionException;
+    DataResult<EntityRecord> update(EntityRecord entityRecord) throws FieldConversionException;
 
-    DataResult<EntityRecord> delete(EntityRecord er) throws FieldConversionException;
+    DataResult<EntityRecord> delete(EntityRecord entityRecord) throws FieldConversionException;
 }

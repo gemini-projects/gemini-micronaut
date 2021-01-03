@@ -110,3 +110,11 @@ entity:
     - name: intField
       type: INTEGER
 
+---
+type: ENTITY
+entity:
+  name: CUSTOMDATAMANAGER
+  lk: [stringField]
+  fields:
+    - name: stringField
+      type: STRING

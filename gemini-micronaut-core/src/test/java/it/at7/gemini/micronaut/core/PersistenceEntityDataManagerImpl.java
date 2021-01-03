@@ -4,13 +4,11 @@ import it.at7.gemini.micronaut.exception.DuplicateLkRecordException;
 import it.at7.gemini.micronaut.exception.EntityRecordNotFoundException;
 import it.at7.gemini.micronaut.exception.FieldConversionException;
 
-import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Singleton
 public class PersistenceEntityDataManagerImpl implements PersistenceEntityDataManager {
 
     private Map<String, Map<String, EntityRecord>> store = new HashMap<>();

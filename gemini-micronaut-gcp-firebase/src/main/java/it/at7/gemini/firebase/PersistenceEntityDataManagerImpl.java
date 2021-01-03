@@ -6,7 +6,6 @@ import com.google.cloud.firestore.*;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
-import io.micronaut.context.annotation.Primary;
 import io.micronaut.context.annotation.Value;
 import it.at7.gemini.micronaut.core.*;
 import it.at7.gemini.micronaut.exception.DuplicateLkRecordException;
@@ -15,7 +14,6 @@ import it.at7.gemini.micronaut.exception.EntityRecordNotFoundException;
 import it.at7.gemini.micronaut.exception.FieldConversionException;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Singleton;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,8 +22,7 @@ import java.util.concurrent.ExecutionException;
 
 import static it.at7.gemini.firebase.FieldFilter.fieldFilter;
 
-@Singleton
-@Primary
+@DefaultEntityDataManager
 public class PersistenceEntityDataManagerImpl implements PersistenceEntityDataManager {
 
     private Firestore db;
