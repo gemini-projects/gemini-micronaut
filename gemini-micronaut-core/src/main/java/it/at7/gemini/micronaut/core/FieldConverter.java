@@ -109,6 +109,7 @@ public class FieldConverter {
                         toIns = objectValue(field, singleVal);
                         break;
                     case ENUM:
+                    case SELECT:
                         toIns = enumValue(field, singleVal);
                         break;
                     case ARRAY:

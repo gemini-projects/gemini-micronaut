@@ -37,7 +37,7 @@ public class FieldConversionException extends Exception {
         @Override
         public HttpResponse<GeminiHttpResponse> handle(HttpRequest request, FieldConversionException e) {
             return HttpResponse.status(HttpStatus.BAD_REQUEST)
-                    .body(RequestUtils.errorResponseLogger(request, e.getMessage()));
+                    .body(RequestUtils.errorResponseLogger(request, e));
         }
     }
 }

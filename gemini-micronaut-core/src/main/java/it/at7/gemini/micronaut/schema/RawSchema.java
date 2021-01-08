@@ -44,6 +44,7 @@ public class RawSchema {
                 public ObjectType object;
                 public ArrayType array;
                 public List<String> enums;
+                public Select select;
             }
 
             public static class Select {

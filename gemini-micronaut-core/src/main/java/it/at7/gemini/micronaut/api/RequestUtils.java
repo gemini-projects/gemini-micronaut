@@ -15,13 +15,17 @@ import java.util.stream.Collectors;
 public class RequestUtils {
 
     public static GeminiHttpResponse errorResponseLogger(HttpRequest request, String errorMessage) {
-        return errorResponseLogger(request, errorMessage, null);
+        return errorResponseLogger(request, errorMessage, null, null);
     }
 
-    public static GeminiHttpResponse errorResponseLogger(HttpRequest request, String errorMessage, @Nullable Map<String, Object> additionalInfo) {
+    public static GeminiHttpResponse errorResponseLogger(HttpRequest request, Throwable e) {
+        return errorResponseLogger(request, e.getMessage(), null, e);
+    }
+
+    public static GeminiHttpResponse errorResponseLogger(HttpRequest request, String errorMessage, @Nullable Map<String, Object> additionalInfo, @Nullable Throwable e) {
         Optional<TimeWatchLogger> time_logger = request.getAttribute("TIME_LOGGER", TimeWatchLogger.class);
         GeminiHttpResponse errorBody = GeminiHttpResponse.error(errorMessage, additionalInfo);
-        time_logger.ifPresent(t -> errorBody.addElapsedTime(t.error("Error response ready: " + errorMessage)));
+        time_logger.ifPresent(t -> errorBody.addElapsedTime(t.error("Error response ready: " + errorMessage, e)));
         return errorBody;
     }
 

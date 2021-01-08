@@ -2,6 +2,7 @@ package it.at7.gemini.micronaut.core;
 
 import org.slf4j.Logger;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -39,12 +40,6 @@ public class TimeWatchLogger {
         return current;
     }
 
-    public long error(String message, Exception e) {
-        long current = System.currentTimeMillis() - start;
-        this.logger.error("[{}-{} {}] {}", tag, logID, current, message, e);
-        return current;
-    }
-
     public long warn(String message) {
         long current = System.currentTimeMillis() - start;
         this.logger.warn("[{}-{} {}] {}", tag, logID, current, message);
@@ -71,6 +66,12 @@ public class TimeWatchLogger {
         TimeWatchLogger timeWatchLogger = new TimeWatchLogger(logger, tag);
         timeWatchLogger.debug(message);
         return timeWatchLogger;
+    }
+
+    public long error(String message, Throwable e) {
+        long current = System.currentTimeMillis() - start;
+        this.logger.error("[{}-{} {}] {}", tag, logID, current, message, e);
+        return current;
     }
 
     public long error(String message) {

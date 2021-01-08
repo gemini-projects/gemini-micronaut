@@ -207,7 +207,7 @@ public class Field {
 
         public Builder enumType(List<String> enums) {
             this.type = Type.ENUM;
-            this.enums = enums;
+            this.enums = enums.stream().map(String::toUpperCase).collect(Collectors.toList());
             return this;
         }
 
@@ -237,7 +237,10 @@ public class Field {
                     this.innerFields = array.object.fields.stream().map(Field::from).collect(Collectors.toList());
                     break;
                 case ENUM:
-                    this.enums = array.enums;
+                    this.enums = array.enums.stream().map(String::toUpperCase).collect(Collectors.toList());
+                    break;
+                case SELECT:
+                    this.enums = array.select.elems.stream().map(f -> f.value).map(String::toUpperCase).collect(Collectors.toList());
                     break;
                 case ARRAY:
                     arrayType(array.array);
@@ -248,7 +251,7 @@ public class Field {
 
         public Builder selectType(RawSchema.Entity.Field.Select select) {
             this.type = Type.SELECT;
-            this.enums = select.elems.stream().map(f -> f.value).collect(Collectors.toList());
+            this.enums = select.elems.stream().map(f -> f.value).map(String::toUpperCase).collect(Collectors.toList());
             return this;
         }
 

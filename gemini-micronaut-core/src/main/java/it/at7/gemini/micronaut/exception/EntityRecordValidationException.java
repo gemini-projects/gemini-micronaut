@@ -39,7 +39,7 @@ public class EntityRecordValidationException extends Exception {
             // EntityRecord er = e.getEntityRecord();
             EntityRecord.ValidationResult validation = e.getValidation();
             return HttpResponse.status(HttpStatus.BAD_REQUEST)
-                    .body(RequestUtils.errorResponseLogger(request, e.getMessage(), Map.of("fieldValidationErrors", validation.getErrors())));
+                    .body(RequestUtils.errorResponseLogger(request, e.getMessage(), Map.of("fieldValidationErrors", validation.getErrors()), e));
         }
     }
 }
