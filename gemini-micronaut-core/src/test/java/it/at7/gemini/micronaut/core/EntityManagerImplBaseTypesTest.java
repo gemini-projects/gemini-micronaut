@@ -28,6 +28,7 @@ class EntityManagerImplBaseTypesTest {
                 "booleanField", true,
                 "enumField", "E1",
                 "intField", 42,
+                    "doubleField", 42.4242424242424242,
                 "objectField", Map.of("st", "inner string"),
                 "dictField", Map.of("dictkey1", Map.of("st", "dictValueSt")),
                 "selectField", "S1",

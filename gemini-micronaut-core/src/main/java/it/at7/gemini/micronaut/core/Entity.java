@@ -75,7 +75,7 @@ public class Entity {
         return treeParentField;
     }
 
-    static Entity from(RawSchema rawSchema) {
+    static public Entity from(RawSchema rawSchema) {
         RawSchema.Entity entity = rawSchema.entity;
 
         Builder builder = new Builder(entity.name);

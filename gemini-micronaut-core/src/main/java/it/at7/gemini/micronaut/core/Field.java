@@ -83,6 +83,9 @@ public class Field {
             case INTEGER:
                 builder.integerType();
                 break;
+            case DOUBLE:
+                builder.doubleType();
+                break;
             case BOOL:
                 builder.boolType();
                 break;
@@ -200,6 +203,11 @@ public class Field {
             return this;
         }
 
+        public Builder doubleType() {
+            this.type = Type.DOUBLE;
+            return this;
+        }
+
         public Builder boolType() {
             this.type = Type.BOOL;
             return this;
@@ -240,7 +248,7 @@ public class Field {
                     this.enums = array.enums.stream().map(String::toUpperCase).collect(Collectors.toList());
                     break;
                 case SELECT:
-                    this.enums = array.select.elems.stream().map(f -> f.value).map(String::toUpperCase).collect(Collectors.toList());
+                    this.enums = array.select.elems.stream().map(f -> f.value).collect(Collectors.toList());
                     break;
                 case ARRAY:
                     arrayType(array.array);
@@ -251,7 +259,7 @@ public class Field {
 
         public Builder selectType(RawSchema.Entity.Field.Select select) {
             this.type = Type.SELECT;
-            this.enums = select.elems.stream().map(f -> f.value).map(String::toUpperCase).collect(Collectors.toList());
+            this.enums = select.elems.stream().map(f -> f.value).collect(Collectors.toList());
             return this;
         }
 
@@ -270,7 +278,7 @@ public class Field {
     }
 
     public enum Type {
-        STRING, INTEGER, BOOL, OBJECT, ENUM, ARRAY, DICTIONARY, SELECT, B64_IMAGE
+        STRING, INTEGER, DOUBLE, BOOL, OBJECT, ENUM, ARRAY, DICTIONARY, SELECT, B64_IMAGE
     }
 
     @Override

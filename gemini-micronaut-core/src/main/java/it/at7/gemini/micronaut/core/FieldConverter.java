@@ -18,6 +18,8 @@ public class FieldConverter {
                 return String.valueOf(value);
             case INTEGER:
                 return integerValue(value);
+            case DOUBLE:
+                return doubleValue(value);
             case BOOL:
                 return boolValue(value);
             case OBJECT:
@@ -25,8 +27,9 @@ public class FieldConverter {
             case DICTIONARY:
                 return dictionaryValue(field, value);
             case ENUM:
-            case SELECT:
                 return enumValue(field, value);
+            case SELECT:
+                return selectValue(field, value);
             case ARRAY:
                 return arrayValue(field, value);
             case B64_IMAGE:
@@ -41,6 +44,13 @@ public class FieldConverter {
         else {
             return Integer.parseInt(String.valueOf(value));
         }
+    }
+
+    private static Object doubleValue(Object value) {
+        if (value instanceof Number)
+            return ((Number) value).doubleValue();
+        else
+            return Double.parseDouble(String.valueOf(value));
     }
 
     private static Boolean boolValue(Object value) {
@@ -92,6 +102,13 @@ public class FieldConverter {
         throw new FieldConversionException(field, value);
     }
 
+    private static String selectValue(Field field, Object value) throws FieldConversionException {
+        String stValue = String.valueOf(value);
+        if (field.getEnums().contains(stValue))
+            return stValue;
+        throw new FieldConversionException(field, value);
+    }
+
     private static Object arrayValue(Field field, Object value) throws FieldConversionException {
         if (List.class.isAssignableFrom(value.getClass())) {
             List<Object> arrayVal = (List<Object>) value;
@@ -109,8 +126,10 @@ public class FieldConverter {
                         toIns = objectValue(field, singleVal);
                         break;
                     case ENUM:
-                    case SELECT:
                         toIns = enumValue(field, singleVal);
+                        break;
+                    case SELECT:
+                        toIns = selectValue(field, singleVal);
                         break;
                     case ARRAY:
                         throw new UnsupportedOperationException("Wrong type");

@@ -15,6 +15,8 @@ entity:
       type: BOOL
     - name: intField
       type: INTEGER
+    - name: doubleField
+      type: DOUBLE
     - name: objectField
       type: OBJECT
       object:

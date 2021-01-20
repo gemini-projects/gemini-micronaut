@@ -28,7 +28,7 @@ public class RawSchema {
             public Select select;
 
             public enum Type {
-                STRING, INTEGER, BOOL, OBJECT, DICTIONARY, ENUM, ARRAY, SELECT, B64_IMAGE
+                STRING, INTEGER, DOUBLE, BOOL, OBJECT, DICTIONARY, ENUM, ARRAY, SELECT, B64_IMAGE
             }
 
             public static class ObjectType {

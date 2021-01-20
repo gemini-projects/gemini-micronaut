@@ -87,6 +87,7 @@ public class DataListRequest {
     }
 
     public enum OPE_TYPE {
-        EQUALS
+        EQUALS,
+        CONTAINS
     }
 }
