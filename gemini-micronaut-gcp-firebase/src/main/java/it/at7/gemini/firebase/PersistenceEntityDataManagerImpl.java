@@ -15,6 +15,7 @@ import it.at7.gemini.micronaut.exception.FieldConversionException;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,25 @@ public class PersistenceEntityDataManagerImpl implements PersistenceEntityDataMa
 
     @Value("${gemini.firebase.collectionsPrefix:}")
     private String collectionsPrefix;
+
+    public PersistenceEntityDataManagerImpl() {
+    }
+
+    public PersistenceEntityDataManagerImpl(String projectId, InputStream serviceAccount, String collectionsPrefix, String firebaseName) {
+        this.projectId = projectId;
+        this.collectionsPrefix = collectionsPrefix;
+
+        try {
+            FirebaseOptions options = FirebaseOptions.builder()
+                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .setProjectId(projectId)
+                    .build();
+            FirebaseApp firebaseApp = FirebaseApp.initializeApp(options, firebaseName);
+            db = FirestoreClient.getFirestore(firebaseApp);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @PostConstruct
     void init() throws IOException {

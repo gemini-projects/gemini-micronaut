@@ -18,13 +18,28 @@ public class FieldFilter {
         switch (field.getType()) {
             case STRING:
                 return stringFilter(collection, fields, filter);
+            case ARRAY:
+                return arrayFilter(collection, fields, filter);
             case INTEGER:
             case BOOL:
             case OBJECT:
             case ENUM:
-            case ARRAY:
             case DICTIONARY:
             case SELECT:
+                // TODO
+                break;
+        }
+        return collection;
+    }
+
+    private static Query arrayFilter(Query collection, List<Field> fields, DataListRequest.Filter filter) {
+        switch (filter.getOperation()) {
+            case EQUALS:
+                // TODO
+                break;
+            case CONTAINS:
+                if (String.class.isAssignableFrom(filter.getValue().getClass()))
+                    return collection.whereArrayContains(fields.stream().map(Field::getName).collect(Collectors.joining(".")), filter.getValue());
                 break;
         }
         return collection;
