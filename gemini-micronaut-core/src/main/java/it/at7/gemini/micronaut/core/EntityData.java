@@ -18,5 +18,5 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @DefaultScope(Context.class)
 public @interface EntityData {
 
-    String value();
+    String[] value();
 }

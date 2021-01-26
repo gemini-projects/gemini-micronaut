@@ -2,7 +2,6 @@ package it.at7.gemini.micronaut.core;
 
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Context;
-import io.micronaut.context.annotation.Value;
 import io.micronaut.core.annotation.AnnotationValue;
 import io.micronaut.inject.BeanDefinition;
 import io.micronaut.inject.qualifiers.Qualifiers;
@@ -89,15 +88,17 @@ public class EntityManagerImpl implements EntityManager {
         for (BeanDefinition definition : definitions) {
             PersistenceEntityDataManager dataBean = applicationContext.getBean((BeanDefinition<PersistenceEntityDataManager>) definition);
             AnnotationValue<EntityData> controllerAnn = definition.getAnnotation(EntityData.class);
-            Optional<String> value = controllerAnn.getValue(String.class);
+            Optional<String[]> value = controllerAnn.getValue(String[].class);
             if (value.isEmpty()) {
                 throw new RuntimeException("You must provide the name for tne Persistence Entity Data Manager");
             }
-            String entityName = value.get();
-            if (!entityMap.containsKey(entityName.toUpperCase())) {
-                throw new RuntimeException(String.format("Entity %s not found in schema", entityName));
+            String[] entities = value.get();
+            for (String entityName : entities) {
+                if (!entityMap.containsKey(entityName.toUpperCase())) {
+                    throw new RuntimeException(String.format("Entity %s not found in schema", entityName));
+                }
+                customManagers.put(entityName.toUpperCase(), dataBean);
             }
-            customManagers.put(entityName.toUpperCase(), dataBean);
         }
 
         return entityMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e ->

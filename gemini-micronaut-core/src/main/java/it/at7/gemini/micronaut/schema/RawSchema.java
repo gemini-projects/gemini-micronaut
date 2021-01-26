@@ -28,7 +28,7 @@ public class RawSchema {
             public Select select;
 
             public enum Type {
-                STRING, INTEGER, DOUBLE, BOOL, OBJECT, DICTIONARY, ENUM, ARRAY, SELECT, B64_IMAGE
+                STRING, INTEGER, DECIMAL, DOUBLE, BOOL, OBJECT, DICTIONARY, ENUM, ARRAY, SELECT, B64_IMAGE
             }
 
             public static class ObjectType {
@@ -55,6 +55,10 @@ public class RawSchema {
                     public String displayName;
                     public List<String> driveFields;
                 }
+            }
+
+            public static class Decimal {
+
             }
         }
 

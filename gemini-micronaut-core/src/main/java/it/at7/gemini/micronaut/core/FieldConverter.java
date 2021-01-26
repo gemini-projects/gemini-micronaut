@@ -2,6 +2,7 @@ package it.at7.gemini.micronaut.core;
 
 import it.at7.gemini.micronaut.exception.FieldConversionException;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +19,8 @@ public class FieldConverter {
                 return String.valueOf(value);
             case INTEGER:
                 return integerValue(value);
+            case DECIMAL:
+                return decimalValue(field, value);
             case DOUBLE:
                 return doubleValue(value);
             case BOOL:
@@ -51,6 +54,14 @@ public class FieldConverter {
             return ((Number) value).doubleValue();
         else
             return Double.parseDouble(String.valueOf(value));
+    }
+
+    private static Object decimalValue(Field field, Object value) {
+        // TODO add bigdecimal specific fields conversion ??
+        if (value instanceof Number)
+            return BigDecimal.valueOf(((Number) value).doubleValue());
+        else
+            return new BigDecimal(String.valueOf(value));
     }
 
     private static Boolean boolValue(Object value) {

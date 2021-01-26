@@ -83,6 +83,9 @@ public class Field {
             case INTEGER:
                 builder.integerType();
                 break;
+            case DECIMAL:
+                builder.decimalType();
+                break;
             case DOUBLE:
                 builder.doubleType();
                 break;
@@ -213,6 +216,11 @@ public class Field {
             return this;
         }
 
+        public Builder decimalType() {
+            this.type = Type.DECIMAL;
+            return this;
+        }
+
         public Builder enumType(List<String> enums) {
             this.type = Type.ENUM;
             this.enums = enums.stream().map(String::toUpperCase).collect(Collectors.toList());
@@ -278,7 +286,7 @@ public class Field {
     }
 
     public enum Type {
-        STRING, INTEGER, DOUBLE, BOOL, OBJECT, ENUM, ARRAY, DICTIONARY, SELECT, B64_IMAGE
+        STRING, INTEGER, DECIMAL, DOUBLE, BOOL, OBJECT, ENUM, ARRAY, DICTIONARY, SELECT, B64_IMAGE
     }
 
     @Override
