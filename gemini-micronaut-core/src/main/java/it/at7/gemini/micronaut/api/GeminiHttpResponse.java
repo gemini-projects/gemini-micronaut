@@ -3,6 +3,7 @@ package it.at7.gemini.micronaut.api;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.annotation.Nullable;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,6 +45,15 @@ public class GeminiHttpResponse {
             this.meta = new HashMap<>();
         }
         this.meta.put(metaProperty, value);
+        return this;
+    }
+
+    public GeminiHttpResponse addLastUpdate(Long lastUpdateUnixTimestamp) {
+        if (this.meta == null) {
+            this.meta = new HashMap<>();
+        }
+        this.meta.put("lastUpdateTimeUnix", lastUpdateUnixTimestamp);
+        this.meta.put("lastUpdateTimeISO", Instant.ofEpochMilli(lastUpdateUnixTimestamp).toString());
         return this;
     }
 

@@ -1,0 +1,56 @@
+# SCHEMA DEFINITION
+
+type: ENTITY
+entity:
+  name: User
+  displayName: User
+  lk: [id]
+  fields:
+    - name: id
+      type: STRING
+      required: true
+    - name: accounts
+      type: ARRAY
+      array:
+        type: STRING
+    - name: profiles
+      type: ARRAY
+      array:
+        type: STRING
+
+---
+type: ENTITY
+entity:
+  name: Profile
+  displayName: Profile
+  lk: [id]
+  fields:
+    - name: id
+      type: STRING
+      required: true
+    - name: permissions
+      type: DICTIONARY
+      required: true
+      dict:
+        fields:
+          - name: namespacePermissions
+            type: OBJECT
+            object:
+              fields:
+                - name: entity
+                  type: ARRAY
+                  array:
+                    type: ENUM
+                    enums: [LIST, NEW, EDIT, GET, DELETE]
+
+          - name: entityPermissions
+            type: DICTIONARY
+            dict:
+              fields:
+                - name: permissions
+                  type: ARRAY
+                  array:
+                    type: ENUM
+                    enums: [LIST, NEW, EDIT, GET, DELETE]
+
+

@@ -15,8 +15,9 @@ public class Field {
     private final Type arrayType;
     private final boolean required;
     private final int arrayDept;
+    private final String anyTypeField;
 
-    private Field(String name, Type type, boolean required, List<String> enums, List<Field> innerFields, Type arrayType, int arrayDept) {
+    private Field(String name, Type type, boolean required, List<String> enums, List<Field> innerFields, Type arrayType, int arrayDept, String anyTypeField) {
         CheckArgument.notEmpty(name, "field name required");
         CheckArgument.isNotNull(type, "type name required");
         this.name = name;
@@ -41,8 +42,12 @@ public class Field {
                 CheckArgument.notEmpty(innerFields, "innerFields required for OBJECT type");
             }
         }
+        if (type.equals(Type.ANY)) {
+            CheckArgument.notEmpty(anyTypeField, "AnyTypeField required for ANY type");
+        }
         this.enums = enums != null ? List.copyOf(enums) : List.of();
         this.innerFields = innerFields != null ? innerFields.stream().collect(Collectors.toMap(Field::getName, f -> f)) : Map.of();
+        this.anyTypeField = anyTypeField;
     }
 
     public String getName() {
@@ -109,6 +114,9 @@ public class Field {
                 break;
             case B64_IMAGE:
                 builder.b64ImageType();
+                break;
+            case ANY:
+                builder.anyType(field.any);
                 break;
             default:
                 throw new RuntimeException(String.format("Raw Field %s not convertible", field.name));
@@ -191,6 +199,7 @@ public class Field {
         private boolean required;
         private Type arrayType;
         private int arrayDept = 0;
+        private String anyTypeField;
 
         public Builder(String name) {
             this.name = name;
@@ -276,8 +285,14 @@ public class Field {
             return this;
         }
 
+        public Builder anyType(RawSchema.Entity.Field.AnyType any) {
+            this.type = Type.ANY;
+            this.anyTypeField = any.typeField;
+            return this;
+        }
+
         public Field build() {
-            return new Field(name, type, required, enums, innerFields, arrayType, arrayDept);
+            return new Field(name, type, required, enums, innerFields, arrayType, arrayDept, anyTypeField);
         }
     }
 
@@ -286,7 +301,7 @@ public class Field {
     }
 
     public enum Type {
-        STRING, INTEGER, DECIMAL, DOUBLE, BOOL, OBJECT, ENUM, ARRAY, DICTIONARY, SELECT, B64_IMAGE
+        STRING, INTEGER, DECIMAL, DOUBLE, BOOL, OBJECT, ENUM, ARRAY, DICTIONARY, SELECT, B64_IMAGE, ANY
     }
 
     @Override

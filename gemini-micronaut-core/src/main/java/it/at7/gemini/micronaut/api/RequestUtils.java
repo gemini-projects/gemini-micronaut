@@ -56,7 +56,10 @@ public class RequestUtils {
     private static HttpResponse<GeminiHttpResponse> readyResponse(CommonResult result, Object dataBody, HttpRequest request) {
         GeminiHttpResponse responseBody = GeminiHttpResponse.success(dataBody);
         MutableHttpResponse<GeminiHttpResponse> resp = okResponse(responseBody);
-        result.getLastUpdateTime().ifPresent(updatedTime -> resp.header(HttpHeaders.ETAG, String.valueOf(updatedTime)));
+        result.getLastUpdateTime().ifPresent(updatedTime -> {
+            responseBody.addLastUpdate(updatedTime);
+            resp.header(HttpHeaders.ETAG, String.valueOf(updatedTime));
+        });
         Optional<TimeWatchLogger> time_logger = request.getAttribute("TIME_LOGGER", TimeWatchLogger.class);
         time_logger.ifPresent(t -> responseBody.addElapsedTime(t.info("Response Ready")));
         return resp;

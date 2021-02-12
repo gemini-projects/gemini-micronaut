@@ -26,9 +26,10 @@ public class RawSchema {
             public Dictionary dict;
             public ArrayType array;
             public Select select;
+            public AnyType any;
 
             public enum Type {
-                STRING, INTEGER, DECIMAL, DOUBLE, BOOL, OBJECT, DICTIONARY, ENUM, ARRAY, SELECT, B64_IMAGE
+                STRING, INTEGER, DECIMAL, DOUBLE, BOOL, OBJECT, DICTIONARY, ENUM, ARRAY, SELECT, B64_IMAGE, ANY
             }
 
             public static class ObjectType {
@@ -58,7 +59,10 @@ public class RawSchema {
             }
 
             public static class Decimal {
+            }
 
+            public static class AnyType {
+                public String typeField;
             }
         }
 

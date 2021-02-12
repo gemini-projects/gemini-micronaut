@@ -6,15 +6,15 @@ import io.micronaut.core.annotation.AnnotationValue;
 import io.micronaut.inject.BeanDefinition;
 import io.micronaut.inject.qualifiers.Qualifiers;
 import it.at7.gemini.micronaut.exception.EntityNotFoundException;
+import it.at7.gemini.micronaut.schema.EntitySchema;
+import it.at7.gemini.micronaut.schema.LoadedSchema;
 import it.at7.gemini.micronaut.schema.RawSchema;
 import it.at7.gemini.micronaut.schema.SchemaLoader;
 
 import javax.annotation.PostConstruct;
 import java.io.FileNotFoundException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.io.IOException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Context
@@ -23,19 +23,25 @@ public class EntityManagerImpl implements EntityManager {
     private Map<String, Entity> entityMap;
     private Map<String, RawSchema.Entity> rawSchemaEntities;
     private Map<String, EntityDataManager> entityDataManagerMap;
+    private PersistenceEntityDataManager defaultPersistenceManager;
+    private List<PersistenceEntityDataManager> customPersistenceManagers;
+    private LoadedSchema loadedSchema;
 
     /* @Value("${gemini.entity.schema.lkSingleRecord:}")
     private String lkSingleRecord; */
 
 
     @PostConstruct
-    void init(ApplicationContext applicationContext, SchemaLoader schemaLoader) throws FileNotFoundException {
+    void init(ApplicationContext applicationContext, SchemaLoader schemaLoader) throws IOException {
         /* if (lkSingleRecord != null && !lkSingleRecord.isEmpty())
             Configurations.setLkSingleRecord(lkSingleRecord); */
-        Collection<RawSchema> rawSchemas = schemaLoader.load();
+        this.loadedSchema = schemaLoader.load();
+        Collection<RawSchema> rawSchemas = loadedSchema.getRawSchemas();
         this.rawSchemaEntities = rawSchemas.stream().filter(s -> s.type.equals(RawSchema.Type.ENTITY)).collect(Collectors.toMap(s -> Entity.normalizeName(s.entity.name), s -> s.entity));
         this.entityMap = Map.copyOf(buildEntities(rawSchemas));
-        this.entityDataManagerMap = Map.copyOf(buildDataManagers(applicationContext, this.entityMap));
+        this.defaultPersistenceManager = this.getCommonPersistenceManager(applicationContext);
+        this.customPersistenceManagers = this.getCustomPersistenceManagers(applicationContext);
+        this.entityDataManagerMap = Map.copyOf(buildDataManagers(applicationContext, entityMap));
     }
 
     @Override
@@ -53,17 +59,34 @@ public class EntityManagerImpl implements EntityManager {
     }
 
     @Override
-    public RawSchema.Entity getEntitySchema(String entityName) throws EntityNotFoundException {
+    public EntitySchema getEntitySchema(String entityName) throws EntityNotFoundException {
         CheckArgument.notEmpty(entityName, "Entity must be a not empty string");
         RawSchema.Entity entity = this.rawSchemaEntities.get(Entity.normalizeName(entityName));
         if (entity == null)
             throw new EntityNotFoundException(entityName);
-        return entity;
+        return new EntitySchema(this.loadedSchema.getSchemaHash(), entity);
     }
 
     @Override
     public EntityDataManager getDataManager(Entity entity) {
         return this.entityDataManagerMap.get(entity.getName());
+    }
+
+    @Override
+    public Map<String, EntityTimes> getEntitiesTimes() {
+        Map<String, EntityTimes> entityTimes = new HashMap<>();
+        for (PersistenceEntityDataManager customPersistenceManager : customPersistenceManagers) {
+            entityTimes.putAll(customPersistenceManager.times());
+        }
+        Set<String> computed = entityTimes.keySet();
+        if (!computed.equals(this.entityMap.keySet()))
+            entityTimes.putAll(defaultPersistenceManager.times());
+        return entityTimes;
+    }
+
+    @Override
+    public LoadedSchema getLoadedSchema() {
+        return loadedSchema;
     }
 
     private Map<String, Entity> buildEntities(Iterable<RawSchema> rawSchemas) {
@@ -77,12 +100,26 @@ public class EntityManagerImpl implements EntityManager {
         return entityMap;
     }
 
-    private Map<String, EntityDataManager> buildDataManagers(ApplicationContext applicationContext, Map<String, Entity> entityMap) {
+    private PersistenceEntityDataManager getCommonPersistenceManager(ApplicationContext applicationContext) {
         Optional<PersistenceEntityDataManager> commonDataManager = applicationContext.findBean(PersistenceEntityDataManager.class, Qualifiers.byStereotype(DefaultEntityDataManager.class));
         if (commonDataManager.isEmpty()) {
             throw new RuntimeException("You must provide a default Entity Data Manager");
         }
-        PersistenceEntityDataManager defaultPersistenceEntityDataManager = commonDataManager.get();
+        return commonDataManager.get();
+    }
+
+    private List<PersistenceEntityDataManager> getCustomPersistenceManagers(ApplicationContext applicationContext) {
+        Collection<BeanDefinition<?>> definitions = applicationContext.getBeanDefinitions(Qualifiers.byStereotype(EntityData.class));
+        List<PersistenceEntityDataManager> customManagers = new ArrayList<>();
+
+        for (BeanDefinition definition : definitions) {
+            PersistenceEntityDataManager dataBean = applicationContext.getBean((BeanDefinition<PersistenceEntityDataManager>) definition);
+            customManagers.add(dataBean);
+        }
+        return customManagers;
+    }
+
+    private Map<String, EntityDataManager> buildDataManagers(ApplicationContext applicationContext, Map<String, Entity> entityMap) {
         Collection<BeanDefinition<?>> definitions = applicationContext.getBeanDefinitions(Qualifiers.byStereotype(EntityData.class));
         Map<String, PersistenceEntityDataManager> customManagers = new HashMap<>();
         for (BeanDefinition definition : definitions) {
@@ -102,7 +139,7 @@ public class EntityManagerImpl implements EntityManager {
         }
 
         return entityMap.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e ->
-                new EntityDataManagerImpl(customManagers.getOrDefault(e.getKey(), defaultPersistenceEntityDataManager), e.getValue())
+                new EntityDataManagerImpl(customManagers.getOrDefault(e.getKey(), defaultPersistenceManager), e.getValue())
         ));
     }
 }

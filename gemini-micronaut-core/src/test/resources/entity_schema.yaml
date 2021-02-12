@@ -39,6 +39,13 @@ entity:
             displayName: "SELECT 2"
     - name: b64Image
       type: B64_IMAGE
+    - name: anyFieldType
+      type: ENUM
+      enums: [STRING, DOUBLE]
+    - name: anyField
+      type: ANY
+      any:
+        typeField: anyFieldType
 
 ---
 ### ENTITY: Multiple LK

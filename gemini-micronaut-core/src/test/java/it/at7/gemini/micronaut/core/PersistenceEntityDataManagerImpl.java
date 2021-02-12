@@ -81,4 +81,9 @@ public class PersistenceEntityDataManagerImpl implements PersistenceEntityDataMa
         entityStore.remove(lkString);
         return DataResult.from(entityRecord);
     }
+
+    @Override
+    public Map<String, EntityTimes> times() {
+        return Map.of();
+    }
 }

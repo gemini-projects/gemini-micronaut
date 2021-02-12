@@ -37,6 +37,8 @@ public class FieldConverter {
                 return arrayValue(field, value);
             case B64_IMAGE:
                 return b64Image(field, value);
+            case ANY:
+                return value;
         }
         throw new FieldConversionException(field, value);
     }

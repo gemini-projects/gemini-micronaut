@@ -16,7 +16,9 @@ import it.at7.gemini.micronaut.exception.FieldConversionException;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -101,7 +103,7 @@ public class PersistenceEntityDataManagerImpl implements PersistenceEntityDataMa
             EntityRecord persistedEntityRecord = new PersistedEntityRecord(entity);
             Map<String, Object> data = documentSnapshot.getData();
             if (data == null) {
-                throw new RuntimeException("data not found iside firebase document snapshot");
+                throw new RuntimeException("data not found inside firebase document snapshot");
             }
             persistedEntityRecord.set(documentSnapshot.getData());
 
@@ -170,6 +172,49 @@ public class PersistenceEntityDataManagerImpl implements PersistenceEntityDataMa
             return retVal;
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException("delete critical exception", e);
+        }
+    }
+
+    @Override
+    public Map<String, EntityTimes> times() {
+        try {
+            DocumentReference document = db
+                    .collection(collectionsPrefix + "SUMMARY")
+                    .document("default");
+
+            ApiFuture<DocumentSnapshot> future = document.get();
+            DocumentSnapshot documentSnapshot = future.get();
+            if (!documentSnapshot.exists()) {
+                return Map.of();
+            }
+            Map<String, Object> data = documentSnapshot.getData();
+            if (data == null) {
+                throw new RuntimeException("data not found inside firebase document snapshot");
+            }
+            Map<String, EntityTimes> ret = new HashMap<>();
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                Map<String, Object> value = (Map<String, Object>)entry.getValue();
+                String updateISO = (String) value.get("UPDATE_time");
+                String createISO = (String) value.get("NEW_time");
+                String deleteISO = (String) value.get("DELETE_time");
+                long updateUNIX = 0L;
+                long createUNIX = 0L;
+                long deleteUNIX = 0L;
+                if(updateISO != null) {
+                    updateUNIX = Instant.parse(updateISO).toEpochMilli();
+                }
+                if(createISO != null) {
+                    createUNIX = Instant.parse(createISO).toEpochMilli();
+                }
+                if(deleteISO != null) {
+                    deleteUNIX = Instant.parse(deleteISO).toEpochMilli();
+                }
+                ret.put(entry.getKey(), new EntityTimes(createUNIX, updateUNIX, deleteUNIX));
+            }
+
+            return ret;
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException("times critical exception", e);
         }
     }
 
