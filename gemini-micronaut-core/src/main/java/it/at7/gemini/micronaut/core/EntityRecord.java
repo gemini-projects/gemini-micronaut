@@ -6,7 +6,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public class EntityRecord {
     private final static Logger logger = LoggerFactory.getLogger(EntityRecord.class);
@@ -38,18 +41,20 @@ public class EntityRecord {
     }
 
     public String getLkString(String separator) throws FieldConversionException {
-        if(entity.isSingleRecord())
+        if (entity.isSingleRecord())
             return entity.getLkSingleRecValue();
         StringBuilder res = new StringBuilder();
+        boolean isFirst = true;
         this.entity.getLkFields().iterator();
-        Iterator<Field> iterator = this.entity.getLkFields().iterator();
-        while (iterator.hasNext()) {
-            Field lkField = iterator.next();
+        for (Field lkField : this.entity.getLkFields()) {
             Object value = get(lkField.getName());
-            if(value != null) {
-                res.append(FieldConverter.toStringValue(lkField, value, separator));
-                if (iterator.hasNext()) {
-                    res.append(separator);
+            if (value != null) {
+                String stValue = FieldConverter.toStringValue(lkField, value, separator);
+                if (!stValue.isEmpty()) {
+                    if (!isFirst)
+                        res.append(separator);
+                    res.append(stValue);
+                    isFirst = false;
                 }
             }
         }
