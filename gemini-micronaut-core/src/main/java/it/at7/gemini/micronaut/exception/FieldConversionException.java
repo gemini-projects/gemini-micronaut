@@ -22,6 +22,12 @@ public class FieldConversionException extends Exception {
         this.value = value;
     }
 
+    public FieldConversionException(Field field, @Nullable Object value, String additionalMessage) {
+        super(String.format("Unable to convert field %s - %s - for value %s - %s", field.getName(), field.getType(), value, additionalMessage));
+        this.field = field;
+        this.value = value;
+    }
+
     public Field getField() {
         return field;
     }

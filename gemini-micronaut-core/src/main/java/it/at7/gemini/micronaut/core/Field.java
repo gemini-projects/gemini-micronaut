@@ -100,6 +100,9 @@ public class Field {
             case ENUM:
                 builder.enumType(field.enums);
                 break;
+            case DATE:
+                builder.dateType();
+                break;
             case OBJECT:
                 builder.objectType(field.object.fields.stream().map(Field::from).collect(Collectors.toList()));
                 break;
@@ -230,6 +233,11 @@ public class Field {
             return this;
         }
 
+        public Builder dateType() {
+            this.type = Type.DATE;
+            return this;
+        }
+
         public Builder enumType(List<String> enums) {
             this.type = Type.ENUM;
             this.enums = enums.stream().map(String::toUpperCase).collect(Collectors.toList());
@@ -301,7 +309,7 @@ public class Field {
     }
 
     public enum Type {
-        STRING, INTEGER, DECIMAL, DOUBLE, BOOL, OBJECT, ENUM, ARRAY, DICTIONARY, SELECT, B64_IMAGE, ANY
+        STRING, INTEGER, DECIMAL, DOUBLE, BOOL, OBJECT, ENUM, ARRAY, DICTIONARY, SELECT, B64_IMAGE, ANY, DATE
     }
 
     @Override

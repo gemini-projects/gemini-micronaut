@@ -29,7 +29,7 @@ public class RawSchema {
             public AnyType any;
 
             public enum Type {
-                STRING, INTEGER, DECIMAL, DOUBLE, BOOL, OBJECT, DICTIONARY, ENUM, ARRAY, SELECT, B64_IMAGE, ANY
+                STRING, INTEGER, DECIMAL, DOUBLE, BOOL, DATE, OBJECT, DICTIONARY, ENUM, ARRAY, SELECT, B64_IMAGE, ANY
             }
 
             public static class ObjectType {

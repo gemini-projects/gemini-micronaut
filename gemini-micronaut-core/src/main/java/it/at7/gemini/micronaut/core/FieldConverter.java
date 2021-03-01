@@ -3,6 +3,7 @@ package it.at7.gemini.micronaut.core;
 import it.at7.gemini.micronaut.exception.FieldConversionException;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +38,8 @@ public class FieldConverter {
                 return arrayValue(field, value);
             case B64_IMAGE:
                 return b64Image(field, value);
+            case DATE:
+                return dateValue(field, value);
             case ANY:
                 return value;
         }
@@ -120,6 +123,25 @@ public class FieldConverter {
         if (field.getEnums().contains(stValue))
             return stValue;
         throw new FieldConversionException(field, value);
+    }
+
+    private static Object dateValue(Field field, Object value) throws FieldConversionException {
+        if (value instanceof LocalDate)
+            return value;
+        if (List.class.isAssignableFrom(value.getClass())) {
+            try {
+                List<Integer> lo = (List<Integer>) value;
+                return LocalDate.of(lo.get(0), lo.get(1), lo.get(2));
+            } catch (ClassCastException e) {
+                throw new FieldConversionException(field, value, e.getMessage());
+            }
+        }
+        try {
+            return LocalDate.parse(String.valueOf(value));
+        } catch (RuntimeException re) {
+            throw new FieldConversionException(field, value, re.getMessage());
+        }
+
     }
 
     private static Object arrayValue(Field field, Object value) throws FieldConversionException {

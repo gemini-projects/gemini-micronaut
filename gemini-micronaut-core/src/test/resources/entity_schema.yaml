@@ -17,6 +17,8 @@ entity:
       type: INTEGER
     - name: doubleField
       type: DOUBLE
+    - name: dateField
+      type: DATE
     - name: objectField
       type: OBJECT
       object:
