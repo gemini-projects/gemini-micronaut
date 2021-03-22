@@ -32,10 +32,10 @@ public class GeminiPermissionSecurityRule implements SecurityRule {
     private static final String GOOGLE_ISS = "accounts.google.com";
 
     @Inject
-    private AuthDataManagerResolver authDataManagerResolver;
+    AuthDataManagerResolver authDataManagerResolver;
 
     @Value("${gemini.namespace:DEFAULT}")
-    private String namespace;
+    String namespace;
 
     @Override
     public int getOrder() {

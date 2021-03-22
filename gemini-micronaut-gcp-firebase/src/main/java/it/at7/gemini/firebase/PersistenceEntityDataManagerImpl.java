@@ -31,10 +31,10 @@ public class PersistenceEntityDataManagerImpl implements PersistenceEntityDataMa
     private Firestore db;
 
     @Value("${gemini.firebase.projectId}")
-    private String projectId;
+    String projectId;
 
     @Value("${gemini.firebase.collectionsPrefix:}")
-    private String collectionsPrefix;
+    String collectionsPrefix;
 
     public PersistenceEntityDataManagerImpl() {
     }

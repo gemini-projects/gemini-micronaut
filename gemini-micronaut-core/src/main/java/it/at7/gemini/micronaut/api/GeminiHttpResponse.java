@@ -1,12 +1,14 @@
 package it.at7.gemini.micronaut.api;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.micronaut.core.annotation.Introspected;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
+@Introspected
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class GeminiHttpResponse {
     private String status;

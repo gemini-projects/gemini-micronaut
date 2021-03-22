@@ -1,5 +1,6 @@
 package it.at7.gemini.micronaut.api;
 
+import io.micronaut.core.annotation.Introspected;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Controller;
@@ -21,7 +22,7 @@ public class SummaryController {
     private static final Logger logger = LoggerFactory.getLogger(SummaryController.class);
 
     @Inject
-    private EntityManager entityManager;
+    EntityManager entityManager;
 
     @Get
     HttpResponse<GeminiHttpResponse> getList(HttpRequest httpRequest) throws EntityNotFoundException, FieldConversionException {
@@ -52,15 +53,18 @@ public class SummaryController {
     }
 
 
+    @Introspected
     public class SummaryData {
         public SchemaSummary schema;
         public Map<String, EntitySummary> entities;
     }
 
+    @Introspected
     public class SchemaSummary {
         public String hash;
     }
 
+    @Introspected
     public class EntitySummary {
         public String lastUpdateTimeISO;
         public Long lastUpdateTimeUnix;

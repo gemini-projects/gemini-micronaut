@@ -12,13 +12,13 @@ import javax.inject.Singleton;
 public class DefaultAuthDataManagerResolver implements AuthDataManagerResolver {
 
     @Inject
-    private EntityManager entityManager;
+    EntityManager entityManager;
 
-    private EntityDataManager userManager;
-    private EntityDataManager profileManager;
+    EntityDataManager userManager;
+    EntityDataManager profileManager;
 
     @PostConstruct
-    private void init() throws EntityNotFoundException {
+    void init() throws EntityNotFoundException {
         userManager = entityManager.getDataManager("USER");
         profileManager = entityManager.getDataManager("PROFILE");
     }

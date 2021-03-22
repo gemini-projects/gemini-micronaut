@@ -1,7 +1,10 @@
 package it.at7.gemini.micronaut.api;
 
+import io.micronaut.core.annotation.Introspected;
+
 import java.util.Map;
 
+@Introspected
 public class DataRequest {
 
     Map<String, Object> data;

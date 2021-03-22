@@ -1,5 +1,8 @@
 package it.at7.gemini.micronaut.schema;
 
+import io.micronaut.core.annotation.Introspected;
+
+@Introspected
 public class EntitySchema {
     private String schemaHash;
     private RawSchema.Entity entity;
