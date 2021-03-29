@@ -2,6 +2,7 @@ package it.at7.gemini.micronaut.core;
 
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Context;
+import io.micronaut.context.annotation.Value;
 import io.micronaut.core.annotation.AnnotationValue;
 import io.micronaut.inject.BeanDefinition;
 import io.micronaut.inject.qualifiers.Qualifiers;
@@ -12,7 +13,6 @@ import it.at7.gemini.micronaut.schema.RawSchema;
 import it.at7.gemini.micronaut.schema.SchemaLoader;
 
 import javax.annotation.PostConstruct;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -30,6 +30,16 @@ public class EntityManagerImpl implements EntityManager {
     /* @Value("${gemini.entity.schema.lkSingleRecord:}")
     private String lkSingleRecord; */
 
+    @Value("${gemini.entity.schema.defaultGetStrategies:ALL}")
+    List<String> ENTITY_DEFAULT_GET_STRATEGIES;
+
+
+    private static RawSchema schemaDefaults(RawSchema rawSchema, List<String> ENTITY_DEFAULT_GET_STRATEGIES) {
+        if (rawSchema.entity.getStrategies == null || rawSchema.entity.getStrategies.isEmpty()) {
+            rawSchema.entity.getStrategies = ENTITY_DEFAULT_GET_STRATEGIES.stream().map(RawSchema.GetStrategy::valueOf).collect(Collectors.toList());
+        }
+        return rawSchema;
+    }
 
     @PostConstruct
     void init(ApplicationContext applicationContext, SchemaLoader schemaLoader) throws IOException {
@@ -37,7 +47,9 @@ public class EntityManagerImpl implements EntityManager {
             Configurations.setLkSingleRecord(lkSingleRecord); */
         this.loadedSchema = schemaLoader.load();
         Collection<RawSchema> rawSchemas = loadedSchema.getRawSchemas();
-        this.rawSchemaEntities = rawSchemas.stream().filter(s -> s.type.equals(RawSchema.Type.ENTITY)).collect(Collectors.toMap(s -> Entity.normalizeName(s.entity.name), s -> s.entity));
+        this.rawSchemaEntities = rawSchemas.stream().filter(s -> s.type.equals(RawSchema.Type.ENTITY))
+                .map(s -> schemaDefaults(s, ENTITY_DEFAULT_GET_STRATEGIES))
+                .collect(Collectors.toMap(s -> Entity.normalizeName(s.entity.name), s -> s.entity));
         this.entityMap = Map.copyOf(buildEntities(rawSchemas));
         this.defaultPersistenceManager = this.getCommonPersistenceManager(applicationContext);
         this.customPersistenceManagers = this.getCustomPersistenceManagers(applicationContext);

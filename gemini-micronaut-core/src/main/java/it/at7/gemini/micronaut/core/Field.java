@@ -16,8 +16,9 @@ public class Field {
     private final boolean required;
     private final int arrayDept;
     private final String anyTypeField;
+    private final String entityRefName;
 
-    private Field(String name, Type type, boolean required, List<String> enums, List<Field> innerFields, Type arrayType, int arrayDept, String anyTypeField) {
+    private Field(String name, Type type, boolean required, List<String> enums, List<Field> innerFields, Type arrayType, int arrayDept, String anyTypeField, String entityRefName) {
         CheckArgument.notEmpty(name, "field name required");
         CheckArgument.isNotNull(type, "type name required");
         this.name = name;
@@ -25,6 +26,7 @@ public class Field {
         this.arrayType = arrayType;
         this.required = required;
         this.arrayDept = arrayDept;
+        this.entityRefName = entityRefName;
         if (type.equals(Type.ENUM) || type.equals(Type.SELECT)) {
             CheckArgument.notEmpty(enums, "enums required for ENUM type");
         }
@@ -44,6 +46,9 @@ public class Field {
         }
         if (type.equals(Type.ANY)) {
             CheckArgument.notEmpty(anyTypeField, "AnyTypeField required for ANY type");
+        }
+        if (type.equals(Type.ENTITY_REF)) {
+            CheckArgument.notEmpty(entityRefName, "Entity Ref Name required for ENTITY_REF type");
         }
         this.enums = enums != null ? List.copyOf(enums) : List.of();
         this.innerFields = innerFields != null ? innerFields.stream().collect(Collectors.toMap(Field::getName, f -> f)) : Map.of();
@@ -76,6 +81,10 @@ public class Field {
 
     public int getArrayDept() {
         return arrayDept;
+    }
+
+    public String getEntityRefName() {
+        return entityRefName;
     }
 
     public static Field from(RawSchema.Entity.Field field) {
@@ -120,6 +129,9 @@ public class Field {
                 break;
             case ANY:
                 builder.anyType(field.any);
+                break;
+            case ENTITY_REF:
+                builder.entityRef(field.entityRef);
                 break;
             default:
                 throw new RuntimeException(String.format("Raw Field %s not convertible", field.name));
@@ -203,6 +215,7 @@ public class Field {
         private Type arrayType;
         private int arrayDept = 0;
         private String anyTypeField;
+        private String entityRefName;
 
         public Builder(String name) {
             this.name = name;
@@ -275,6 +288,9 @@ public class Field {
                 case SELECT:
                     this.enums = array.select.elems.stream().map(f -> f.value).collect(Collectors.toList());
                     break;
+                case ENTITY_REF:
+                    this.entityRefName = array.entityRef.entity;
+                    break;
                 case ARRAY:
                     arrayType(array.array);
                     break;
@@ -299,8 +315,13 @@ public class Field {
             return this;
         }
 
+        public void entityRef(RawSchema.Entity.Field.EntityRef entityRef) {
+            this.type = Type.ENTITY_REF;
+            this.entityRefName = entityRef.entity;
+        }
+
         public Field build() {
-            return new Field(name, type, required, enums, innerFields, arrayType, arrayDept, anyTypeField);
+            return new Field(name, type, required, enums, innerFields, arrayType, arrayDept, anyTypeField, entityRefName);
         }
     }
 
@@ -309,7 +330,7 @@ public class Field {
     }
 
     public enum Type {
-        STRING, INTEGER, DECIMAL, DOUBLE, BOOL, OBJECT, ENUM, ARRAY, DICTIONARY, SELECT, B64_IMAGE, ANY, DATE
+        STRING, INTEGER, DECIMAL, DOUBLE, BOOL, OBJECT, ENUM, ARRAY, DICTIONARY, SELECT, B64_IMAGE, ANY, DATE, ENTITY_REF
     }
 
     @Override

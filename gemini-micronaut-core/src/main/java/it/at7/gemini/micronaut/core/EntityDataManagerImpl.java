@@ -47,6 +47,7 @@ public class EntityDataManagerImpl implements EntityDataManager {
         EntityRecord.ValidationResult validation = er.validate();
         if (!validation.isValid())
             throw new EntityRecordValidationException(er, validation);
+        // TODO for entity ref add a MODE to check if all the references exist (also in persistence manager)
         return this.persistenceEntityDataManager.add(er);
     }
 
@@ -81,6 +82,7 @@ public class EntityDataManagerImpl implements EntityDataManager {
 
     @Override
     public DataResult<EntityRecord> update(EntityRecord record) throws FieldConversionException {
+        // TODO for entity ref add a MODE to check if all the references exist (also in persistence manager)
         return this.persistenceEntityDataManager.update(record);
     }
 

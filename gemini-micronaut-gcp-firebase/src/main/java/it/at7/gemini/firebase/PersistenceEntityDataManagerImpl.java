@@ -44,9 +44,11 @@ public class PersistenceEntityDataManagerImpl implements PersistenceEntityDataMa
         this.collectionsPrefix = collectionsPrefix;
 
         try {
-            FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    .setProjectId(projectId)
+            FirebaseOptions.Builder builder = FirebaseOptions.builder();
+            if (serviceAccount != null)
+                builder.setCredentials(GoogleCredentials.fromStream(serviceAccount));
+
+            FirebaseOptions options = builder.setProjectId(projectId)
                     .build();
             FirebaseApp firebaseApp = FirebaseApp.initializeApp(options, firebaseName);
             db = FirestoreClient.getFirestore(firebaseApp);
@@ -193,20 +195,20 @@ public class PersistenceEntityDataManagerImpl implements PersistenceEntityDataMa
             }
             Map<String, EntityTimes> ret = new HashMap<>();
             for (Map.Entry<String, Object> entry : data.entrySet()) {
-                Map<String, Object> value = (Map<String, Object>)entry.getValue();
+                Map<String, Object> value = (Map<String, Object>) entry.getValue();
                 String updateISO = (String) value.get("UPDATE_time");
                 String createISO = (String) value.get("NEW_time");
                 String deleteISO = (String) value.get("DELETE_time");
                 long updateUNIX = 0L;
                 long createUNIX = 0L;
                 long deleteUNIX = 0L;
-                if(updateISO != null) {
+                if (updateISO != null) {
                     updateUNIX = Instant.parse(updateISO).toEpochMilli();
                 }
-                if(createISO != null) {
+                if (createISO != null) {
                     createUNIX = Instant.parse(createISO).toEpochMilli();
                 }
-                if(deleteISO != null) {
+                if (deleteISO != null) {
                     deleteUNIX = Instant.parse(deleteISO).toEpochMilli();
                 }
                 ret.put(entry.getKey(), new EntityTimes(createUNIX, updateUNIX, deleteUNIX));

@@ -40,6 +40,8 @@ public class FieldConverter {
                 return b64Image(field, value);
             case DATE:
                 return dateValue(field, value);
+            case ENTITY_REF:
+                return entityRefValue(field, value);
             case ANY:
                 return value;
         }
@@ -166,6 +168,9 @@ public class FieldConverter {
                     case SELECT:
                         toIns = selectValue(field, singleVal);
                         break;
+                    case ENTITY_REF:
+                        toIns = entityRefValue(field, singleVal);
+                        break;
                     case ARRAY:
                         throw new UnsupportedOperationException("Wrong type");
                 }
@@ -188,6 +193,11 @@ public class FieldConverter {
                 return value;
         }
         throw new FieldConversionException(field, value);
+    }
+
+    private static Object entityRefValue(Field field, Object value) {
+        // TODO any type of check ?? Probably when we introduce the serial ID data type or custom reference fields
+        return value;
     }
 
     private static Object handleToValueNull(Field field) {

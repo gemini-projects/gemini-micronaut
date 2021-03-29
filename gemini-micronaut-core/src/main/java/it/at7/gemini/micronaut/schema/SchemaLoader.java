@@ -66,12 +66,12 @@ public class SchemaLoader {
                     }
                     result.put(entityName, rSchema);
                 }
-
+                md.update(RawSchema.version.getBytes());
                 BigInteger bigInt = new BigInteger(1, md.digest());
                 hashedSchema.add(bigInt.toString(16));
             }
 
-            StringBuilder stFinal = new StringBuilder();
+            StringBuilder stFinal = new StringBuilder(RawSchema.version);
             for (String s : hashedSchema) {
                 stFinal.append(s);
             }

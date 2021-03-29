@@ -129,3 +129,26 @@ entity:
   fields:
     - name: stringField
       type: STRING
+
+---
+### ENTITY: category to use as ref
+type: ENTITY
+entity:
+  name: CATEGORY
+  lk: [id]
+  fields:
+    - name: id
+      type: STRING
+
+---
+type: ENTITY
+entity:
+  name: ENTITY_WITH_REF
+  lk: [id]
+  fields:
+    - name: id
+      type: STRING
+    - name: category
+      type: ENTITY_REF
+      entityRef:
+        entity: CATEGORY
