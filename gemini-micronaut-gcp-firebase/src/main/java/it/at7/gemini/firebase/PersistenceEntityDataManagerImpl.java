@@ -47,6 +47,8 @@ public class PersistenceEntityDataManagerImpl implements PersistenceEntityDataMa
             FirebaseOptions.Builder builder = FirebaseOptions.builder();
             if (serviceAccount != null)
                 builder.setCredentials(GoogleCredentials.fromStream(serviceAccount));
+            else
+                builder.setCredentials(GoogleCredentials.getApplicationDefault());
 
             FirebaseOptions options = builder.setProjectId(projectId)
                     .build();
