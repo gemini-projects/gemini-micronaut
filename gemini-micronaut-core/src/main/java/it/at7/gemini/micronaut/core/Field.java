@@ -17,8 +17,10 @@ public class Field {
     private final int arrayDept;
     private final String anyTypeField;
     private final String entityRefName;
+    private final boolean includeGooglePlaceId;
 
-    private Field(String name, Type type, boolean required, List<String> enums, List<Field> innerFields, Type arrayType, int arrayDept, String anyTypeField, String entityRefName) {
+    private Field(String name, Type type, boolean required, List<String> enums, List<Field> innerFields, Type arrayType,
+                  int arrayDept, String anyTypeField, String entityRefName, boolean includeGooglePlaceId) {
         CheckArgument.notEmpty(name, "field name required");
         CheckArgument.isNotNull(type, "type name required");
         this.name = name;
@@ -27,6 +29,7 @@ public class Field {
         this.required = required;
         this.arrayDept = arrayDept;
         this.entityRefName = entityRefName;
+        this.includeGooglePlaceId = includeGooglePlaceId;
         if (type.equals(Type.ENUM) || type.equals(Type.SELECT)) {
             CheckArgument.notEmpty(enums, "enums required for ENUM type");
         }
@@ -87,6 +90,10 @@ public class Field {
         return entityRefName;
     }
 
+    public boolean includeGooglePlaceId() {
+        return includeGooglePlaceId;
+    }
+
     public static Field from(RawSchema.Entity.Field field) {
         Builder builder = new Builder(field.name);
         builder.required(field.required);
@@ -132,6 +139,9 @@ public class Field {
                 break;
             case ENTITY_REF:
                 builder.entityRef(field.entityRef);
+                break;
+            case GEOHASH_LOCATION:
+                builder.geoHashType(field.geoHashLocation);
                 break;
             default:
                 throw new RuntimeException(String.format("Raw Field %s not convertible", field.name));
@@ -216,6 +226,7 @@ public class Field {
         private int arrayDept = 0;
         private String anyTypeField;
         private String entityRefName;
+        private boolean includeGooglePlaceId = false;
 
         public Builder(String name) {
             this.name = name;
@@ -315,13 +326,20 @@ public class Field {
             return this;
         }
 
-        public void entityRef(RawSchema.Entity.Field.EntityRef entityRef) {
+        public Builder entityRef(RawSchema.Entity.Field.EntityRef entityRef) {
             this.type = Type.ENTITY_REF;
             this.entityRefName = entityRef.entity;
+            return this;
+        }
+
+        public Builder geoHashType(RawSchema.Entity.Field.GeoHashLocation geoHashLocation) {
+            this.type = Type.GEOHASH_LOCATION;
+            this.includeGooglePlaceId = geoHashLocation.includeGooglePlaceId;
+            return this;
         }
 
         public Field build() {
-            return new Field(name, type, required, enums, innerFields, arrayType, arrayDept, anyTypeField, entityRefName);
+            return new Field(name, type, required, enums, innerFields, arrayType, arrayDept, anyTypeField, entityRefName, includeGooglePlaceId);
         }
     }
 
@@ -330,7 +348,8 @@ public class Field {
     }
 
     public enum Type {
-        STRING, INTEGER, DECIMAL, DOUBLE, BOOL, OBJECT, ENUM, ARRAY, DICTIONARY, SELECT, B64_IMAGE, ANY, DATE, ENTITY_REF
+        STRING, INTEGER, DECIMAL, DOUBLE, BOOL, OBJECT, ENUM, ARRAY, DICTIONARY, SELECT,
+        B64_IMAGE, ANY, DATE, ENTITY_REF, GEOHASH_LOCATION
     }
 
     @Override

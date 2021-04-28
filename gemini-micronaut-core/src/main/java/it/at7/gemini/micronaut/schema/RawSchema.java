@@ -47,7 +47,6 @@ public class RawSchema {
         public List<String> refDisplayFields;
         public String refDisplaySeparator;
 
-
         public static class Field {
             public String name;
             public String displayName;
@@ -60,10 +59,12 @@ public class RawSchema {
             public Select select;
             public AnyType any;
             public EntityRef entityRef;
+            public GeoHashLocation geoHashLocation;
 
 
             public enum Type {
-                STRING, INTEGER, DECIMAL, DOUBLE, BOOL, DATE, OBJECT, DICTIONARY, ENUM, ARRAY, SELECT, B64_IMAGE, ANY, ENTITY_REF
+                STRING, INTEGER, DECIMAL, DOUBLE, BOOL, DATE, OBJECT, DICTIONARY,
+                ENUM, ARRAY, SELECT, B64_IMAGE, ANY, ENTITY_REF, GEOHASH_LOCATION
             }
 
 
@@ -110,6 +111,10 @@ public class RawSchema {
 
             public static class EntityRef {
                 public String entity;
+            }
+
+            public static class GeoHashLocation {
+                public boolean includeGooglePlaceId;
             }
         }
 

@@ -152,3 +152,14 @@ entity:
       type: ENTITY_REF
       entityRef:
         entity: CATEGORY
+
+---
+type: ENTITY
+entity:
+  name: ENTITY_WITH_GEOHASH
+  lk: [id]
+  fields:
+    - name: id
+      type: STRING
+    - name: location
+      type: GEOHASH_LOCATION

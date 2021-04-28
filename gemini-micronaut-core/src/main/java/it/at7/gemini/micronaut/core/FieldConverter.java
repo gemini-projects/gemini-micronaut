@@ -42,6 +42,8 @@ public class FieldConverter {
                 return dateValue(field, value);
             case ENTITY_REF:
                 return entityRefValue(field, value);
+            case GEOHASH_LOCATION:
+                return geohashLocationValue(field, value);
             case ANY:
                 return value;
         }
@@ -198,6 +200,27 @@ public class FieldConverter {
     private static Object entityRefValue(Field field, Object value) {
         // TODO any type of check ?? Probably when we introduce the serial ID data type or custom reference fields
         return value;
+    }
+
+    private static Object geohashLocationValue(Field field, Object value) throws FieldConversionException {
+        if (Map.class.isAssignableFrom(value.getClass())) {
+            Map<String, Object> mapValue = (Map<String, Object>) value;
+            Object geohash = mapValue.get("geohash");
+            Object lat = mapValue.get("lat");
+            Object lng = mapValue.get("lng");
+            if (lat instanceof Number && lng instanceof Number && geohash instanceof String) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("geohash", geohash);
+                map.put("lat", lat);
+                map.put("lng", lng);
+                if (field.includeGooglePlaceId()) {
+                    Object googlePlaceId = mapValue.get("googlePlaceId");
+                    map.put("googlePlaceId", googlePlaceId);
+                }
+                return map;
+            }
+        }
+        throw new FieldConversionException(field, value);
     }
 
     private static Object handleToValueNull(Field field) {
