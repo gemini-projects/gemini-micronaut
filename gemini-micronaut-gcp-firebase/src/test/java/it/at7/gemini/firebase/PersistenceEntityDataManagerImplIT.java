@@ -1,6 +1,6 @@
 package it.at7.gemini.firebase;
 
-import io.micronaut.test.annotation.MicronautTest;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import it.at7.gemini.micronaut.core.*;
 import it.at7.gemini.micronaut.exception.DuplicateLkRecordException;
 import it.at7.gemini.micronaut.exception.EntityRecordNotFoundException;
@@ -17,9 +17,6 @@ import java.util.Map;
 @MicronautTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PersistenceEntityDataManagerImplIT {
-
-    @Inject
-    PersistenceEntityDataManager persistenceEntityDataManager;
 
     @Inject
     EntityManager entityManager;
@@ -109,6 +106,46 @@ class PersistenceEntityDataManagerImplIT {
                 "dictField", Map.of("dictkey1", Map.of("st", "dictValueSt"))
         ));
 
+    }
+
+    @Test
+    void updateLk() throws Exception {
+        Entity basetypes = entityManager.get("BASETYPES");
+        Assertions.assertNotNull(basetypes);
+
+        String lk = new Date().toInstant().toString();
+
+        EntityDataManager btManager = entityManager.getDataManager("BASETYPES");
+        Map<String, Object> newRecFields = Map.of(
+                "stringField", lk,
+                "booleanField", true,
+                "enumField", "E1",
+                "intField", 42,
+                "objectField", Map.of("st", "inner string"),
+                "dictField", Map.of("dictkey1", Map.of("st", "dictValueSt"))
+        );
+        DataResult<EntityRecord> added = btManager.add(newRecFields);
+        EntityRecord newRec = added.getData();
+
+        String lk2 = new Date().toInstant().toString();
+        newRec.set("booleanField", false);
+        newRec.set("enumField", "E2");
+        newRec.set("stringField", lk2);
+
+        DataResult<EntityRecord> updatedRed = btManager.update(newRec);
+        EntityRecord updRec = updatedRed.getData();
+        Assertions.assertEquals(updRec.getData(), Map.of(
+                "stringField", lk2,
+                "booleanField", false,
+                "enumField", "E2",
+                "intField", 42,
+                "objectField", Map.of("st", "inner string"),
+                "dictField", Map.of("dictkey1", Map.of("st", "dictValueSt"))
+        ));
+
+        Assertions.assertThrows(EntityRecordNotFoundException.class, () -> {
+            btManager.getRecord(lk);
+        });
     }
 
     @Test

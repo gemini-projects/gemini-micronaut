@@ -1,0 +1,2 @@
+gemini.firebase.projectId: ${PROJECT_ID}
+gemini.firebase.collectionsPrefix: ${COLLECTION_PREFIX}

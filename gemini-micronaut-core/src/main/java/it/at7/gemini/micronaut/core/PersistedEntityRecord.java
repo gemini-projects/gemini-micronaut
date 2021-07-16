@@ -34,7 +34,7 @@ public class PersistedEntityRecord extends EntityRecord {
     }
 
     public String getLastLkString() throws FieldConversionException {
-        return getLastLkString("");
+        return getLastLkString(this.getEntity().getLkSeparator());
     }
 
     public String getLastLkString(String separator) throws FieldConversionException {

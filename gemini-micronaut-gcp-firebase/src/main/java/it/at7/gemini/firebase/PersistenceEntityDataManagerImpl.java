@@ -149,6 +149,23 @@ public class PersistenceEntityDataManagerImpl implements PersistenceEntityDataMa
     public DataResult<EntityRecord> update(EntityRecord entityRecord) throws FieldConversionException {
         Map<String, Object> docData = entityRecord.getData();
         try {
+            // check if the key was changed
+            boolean needNewKey = false;
+            String toFindLk = entityRecord.getLkString();
+            if (entityRecord instanceof PersistedEntityRecord) {
+                PersistedEntityRecord pr = (PersistedEntityRecord) entityRecord;
+                List<String> changedLkFields = pr.getChangedLkFields();
+                if (!changedLkFields.isEmpty()) {
+                    needNewKey = true;
+                    toFindLk = pr.getLastLkString();
+                }
+            }
+            String actualLk = entityRecord.getLkString();
+            if (needNewKey && !toFindLk.equals(actualLk)) {
+                delete(entityRecord.getEntity(), toFindLk);
+            }
+
+            // add new record to the store
             ApiFuture<WriteResult> newRec = db
                     .collection(getEntityCollectionName(entityRecord.getEntity()))
                     .document(entityRecord.getLkString())
@@ -165,18 +182,22 @@ public class PersistenceEntityDataManagerImpl implements PersistenceEntityDataMa
     public DataResult<EntityRecord> delete(EntityRecord entityRecord) throws FieldConversionException {
         try {
             String lkString = entityRecord.getLkString();
-            DocumentReference document = db
-                    .collection(getEntityCollectionName(entityRecord.getEntity()))
-                    .document(lkString);
-
-            ApiFuture<WriteResult> delete = document.delete();
-            WriteResult writeResult = delete.get();
+            WriteResult writeResult = delete(entityRecord.getEntity(), lkString);
             DataResult<EntityRecord> retVal = DataResult.from(entityRecord);
             retVal.setLastUpdate(writeResult.getUpdateTime().toDate().getTime());
             return retVal;
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException("delete critical exception", e);
         }
+    }
+
+    private WriteResult delete(Entity entity, String lkString) throws ExecutionException, InterruptedException {
+        DocumentReference document = db
+                .collection(getEntityCollectionName(entity))
+                .document(lkString);
+
+        ApiFuture<WriteResult> delete = document.delete();
+        return delete.get();
     }
 
     @Override
