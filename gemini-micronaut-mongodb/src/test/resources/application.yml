@@ -1,0 +1,2 @@
+gemini.mongodb.url: mongodb+srv://root:e4OEM5mXAGAHRMfHN7DP@cluster0.9thyu.mongodb.net/test
+gemini.mongodb.db: testDB
