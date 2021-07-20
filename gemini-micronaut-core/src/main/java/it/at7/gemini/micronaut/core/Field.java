@@ -334,7 +334,7 @@ public class Field {
 
         public Builder geoHashType(RawSchema.Entity.Field.GeoHashLocation geoHashLocation) {
             this.type = Type.GEOHASH_LOCATION;
-            this.includeGooglePlaceId = geoHashLocation.includeGooglePlaceId;
+            this.includeGooglePlaceId = geoHashLocation != null && geoHashLocation.includeGooglePlaceId;
             return this;
         }
 
