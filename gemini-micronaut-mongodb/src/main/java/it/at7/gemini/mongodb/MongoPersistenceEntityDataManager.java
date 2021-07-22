@@ -151,9 +151,11 @@ public class MongoPersistenceEntityDataManager implements PersistenceEntityDataM
             theDoc.put("_lastUpdate", updateTime);
             theDoc.put("_lk", lkString);
             Document doc = collection.findOneAndReplace(eq("_lk", toFindLkFinal), theDoc);
-
             if (doc == null) {
-                throw new RuntimeException(String.format("record %s not found", lkString));
+                if (!entityRecord.getEntity().isSingleRecord())
+                    throw new RuntimeException(String.format("record %s not found", lkString));
+                else
+                    collection.insertOne(theDoc);
             }
 
             MongoCollection<Document> summaryCollection = db.getCollection(SUMMARY_COLLECTION);
@@ -213,7 +215,7 @@ public class MongoPersistenceEntityDataManager implements PersistenceEntityDataM
         Map<String, EntityTimes> ret = new HashMap<>();
         for (Map.Entry<String, Object> entry : summary.entrySet()) {
             String key = entry.getKey();
-            if(!key.startsWith("_")) {
+            if (!key.startsWith("_")) {
                 Map<String, Object> value = (Map<String, Object>) entry.getValue();
                 Date update = (Date) value.get("UPDATE_time");
                 Date create = (Date) value.get("NEW_time");

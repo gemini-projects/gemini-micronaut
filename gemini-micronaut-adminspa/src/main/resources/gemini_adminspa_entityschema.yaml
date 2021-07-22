@@ -1,0 +1,164 @@
+# SCHEMA DEFINITION
+
+type: ENTITY
+entity:
+  name: Namespace
+  displayName: Namespace
+  lk: [id]
+  fields:
+    - name: id
+      type: STRING
+      required: true
+    - name: url
+      type: STRING
+      required: true
+    - name: displayName
+      type: STRING
+      required: true
+
+---
+type: ENTITY
+entity:
+  name: SettingsMenu
+  displayName: Settings Menu
+  lk: [id]
+  fields:
+    - name: id
+      type: STRING
+      required: true
+    - name: enabled
+      type: BOOL
+    - name: sortkey
+      type: INTEGER
+      displayName: Order
+    - name: title
+      type: STRING
+      required: true
+    - name: menuType
+      displayName: Menu Type
+      type: SELECT
+      select:
+        elems:
+          - value: ENTITY
+            displayName: Entity
+    - name: entityConfig
+      type: OBJECT
+      object:
+        fields:
+          - name: namespace
+            type: STRING
+          - name: entity
+            type: STRING
+
+---
+type: ENTITY
+entity:
+  name: DefaultEntityConfig
+  displayName: Default Entity Configuration
+  lk: [namespace, entity]
+  lkSeparator: _
+  fields:
+    - name: namespace
+      type: STRING
+    - name: entity
+      type: STRING
+      required: true
+    - name: config
+      type: STRING
+      required: true
+
+
+---
+type: ENTITY
+entity:
+  name: BasicSettings
+  displayName: Basic Settings
+  singleRecord: true
+  lkValue: default
+  fields:
+    - name: appName
+      type: STRING
+    - name: logo
+      type: B64_IMAGE
+    - name: sidebarWidth
+      type: STRING
+
+
+---
+type: ENTITY
+entity:
+  name: SideBarMenu
+  displayName: SideBar Menu
+  lk: [id]
+  tree:
+    enabled: true
+    parentField: parent
+  fields:
+    - name: id
+      type: STRING
+      required: true
+    - name: parent
+      type: STRING
+    - name: enabled
+      type: BOOL
+    - name: dev
+      type: BOOL
+    - name: sortkey
+      type: INTEGER
+      displayName: Order
+    - name: title
+      type: STRING
+      required: true
+    - name: menuType
+      displayName: Menu Type
+      type: SELECT
+      select:
+        elems:
+          - value: ENTITY
+            displayName: Entity
+          - value: LABEL
+            displayName: Label
+          - value: GROUP
+            displayName: Group
+          - value: CUSTOM_COMPONENT
+            displayName: Custom Component
+    - name: menuIcon
+      type: STRING
+    - name: routePath
+      type: STRING
+    - name: entityConfig
+      type: OBJECT
+      object:
+        fields:
+          - name: namespace
+            type: ENTITY_REF
+            entityRef:
+              entity: NAMESPACE
+          - name: entity
+            type: STRING
+    - name: customComponentConfig
+      type: OBJECT
+      object:
+        fields:
+          - name: component
+            type: STRING
+          - name: props
+            type: ARRAY
+            array:
+              type: OBJECT
+              object:
+                fields:
+                  - name: type
+                    type: SELECT
+                    select:
+                      elems:
+                        - value: STRING
+                          displayName: String
+                        - value: INTEGER
+                          displayName: Integer
+                        - value: DOUBLE
+                          displayName: Double
+                  - name: value
+                    type: ANY
+                    any:
+                      typeField: type

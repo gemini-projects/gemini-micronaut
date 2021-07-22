@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import javax.inject.Inject;
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.UUID;
 
 import static java.util.Map.entry;
 
@@ -31,7 +32,7 @@ class EntityManagerImplEntityRefTest {
 
         EntityDataManager ewfManager = entityManager.getDataManager("ENTITY_WITH_REF");
         Map<String, Object> newRecFields = Map.ofEntries(
-                entry("id", "lk_c1"),
+                entry("id", "lk_c1"+ UUID.randomUUID().toString()),
                 entry("category", "c1")
         );
         DataResult<EntityRecord> added = ewfManager.add(newRecFields);

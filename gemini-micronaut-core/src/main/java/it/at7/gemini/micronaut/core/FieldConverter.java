@@ -4,10 +4,7 @@ import it.at7.gemini.micronaut.exception.FieldConversionException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class FieldConverter {
@@ -139,6 +136,11 @@ public class FieldConverter {
             } catch (ClassCastException e) {
                 throw new FieldConversionException(field, value, e.getMessage());
             }
+        }
+        if (value instanceof Date) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime((Date) value);
+            return LocalDate.of(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DATE));
         }
         try {
             return LocalDate.parse(String.valueOf(value));

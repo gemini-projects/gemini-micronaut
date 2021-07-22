@@ -1,4 +1,4 @@
-package it.at7.gemini.firebase;
+package it.at7.gemini.micronaut.firebase;
 
 import com.google.cloud.firestore.Query;
 import it.at7.gemini.micronaut.core.DataListRequest;

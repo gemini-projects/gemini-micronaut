@@ -19,9 +19,6 @@ import java.util.Map;
 class MongoPersistenceEntityDataManagerTest {
 
     @Inject
-    PersistenceEntityDataManager persistenceEntityDataManager;
-
-    @Inject
     EntityManager entityManager;
 
     String dateTest;

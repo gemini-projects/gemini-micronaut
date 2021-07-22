@@ -8,20 +8,17 @@ import io.micronaut.http.client.HttpClient;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.runtime.server.EmbeddedServer;
-import io.micronaut.test.annotation.MicronautTest;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import javax.inject.Inject;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static java.util.Map.entry;
 
-@MicronautTest()
+@MicronautTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DataControllerPOST_Test {
 
@@ -38,7 +35,7 @@ class DataControllerPOST_Test {
     @Test
     void post() {
         newRecFields = Map.ofEntries(
-        entry("stringField", "lk"),
+                entry("stringField", "lk" + UUID.randomUUID().toString()),
                 entry("booleanField", true),
                 entry("enumField", "E1"),
                 entry("intField", 42),
@@ -64,7 +61,7 @@ class DataControllerPOST_Test {
     void postMultipleLk() {
         newRecFieldsMultipleLk = Map.of(
                 "id1", "lk",
-                "id2", "lk2"
+                "id2", "lk2" + UUID.randomUUID().toString()
         );
         HttpResponse<GeminiHttpResponse> resp = client.toBlocking().exchange(HttpRequest.POST("/multiplelk",
                 Map.of("data", newRecFieldsMultipleLk)), GeminiHttpResponse.class);

@@ -5,7 +5,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
+import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 
 @MicronautTest
 public class CustomEntityDataManagerTest {
@@ -20,7 +22,7 @@ public class CustomEntityDataManagerTest {
 
         EntityDataManager btManager = entityManager.getDataManager("BASETYPES");
         Map<String, Object> newRecFields = Map.of(
-                "stringField", "lk"
+                "stringField", "lk" + UUID.randomUUID().toString()
         );
         DataResult<EntityRecord> added = btManager.add(newRecFields);
 

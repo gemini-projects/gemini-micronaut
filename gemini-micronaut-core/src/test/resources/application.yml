@@ -1,1 +1,2 @@
 micronaut.http.client.read-timeout: 60
+gemini.test-module: core

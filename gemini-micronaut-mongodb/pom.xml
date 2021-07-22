@@ -4,42 +4,24 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>it.at7.gemini</groupId>
     <artifactId>gemini-micronaut-mongodb</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
 
     <parent>
-        <groupId>io.micronaut</groupId>
-        <artifactId>micronaut-parent</artifactId>
-        <version>2.5.4</version>
+        <groupId>it.at7.gemini.micronaut</groupId>
+        <artifactId>gemini-micronaut</artifactId>
+        <version>0.2.0</version>
     </parent>
-
-    <properties>
-        <micronaut.version>2.5.4</micronaut.version>
-        <maven.compiler.release>11</maven.compiler.release>
-        <maven.compiler.source>1.11</maven.compiler.source>
-        <maven.compiler.target>1.11</maven.compiler.target>
-        <exec.mainClass>it.at7.gemini.micronaut.Application</exec.mainClass>
-    </properties>
-
-    <repositories>
-        <repository>
-            <id>jcenter.bintray.com</id>
-            <url>https://jcenter.bintray.com</url>
-        </repository>
-    </repositories>
-
 
     <dependencies>
         <dependency>
-            <groupId>it.at7.gemini</groupId>
+            <groupId>it.at7.gemini.micronaut</groupId>
             <artifactId>gemini-micronaut-core</artifactId>
-            <version>0.1</version>
+            <version>${gemini.version}</version>
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver-sync</artifactId>
-           <!-- <version>4.2.3</version> -->
         </dependency>
 
 
@@ -69,9 +51,30 @@
             <artifactId>micronaut-test-junit5</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>it.at7.gemini.micronaut</groupId>
+            <artifactId>gemini-micronaut-core</artifactId>
+            <version>${gemini.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <dependenciesToScan>
+                        <dependency>it.at7.gemini.micronaut:gemini-micronaut-core</dependency>
+                    </dependenciesToScan>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
 
 </project>

@@ -7,12 +7,11 @@ import io.micronaut.http.client.HttpClient;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.runtime.server.EmbeddedServer;
-import io.micronaut.test.annotation.MicronautTest;
-import it.at7.gemini.micronaut.core.DataResult;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import it.at7.gemini.micronaut.core.EntityDataManager;
 import it.at7.gemini.micronaut.core.EntityManager;
-import it.at7.gemini.micronaut.core.EntityRecord;
-import it.at7.gemini.micronaut.exception.*;
+import it.at7.gemini.micronaut.exception.EntityNotFoundException;
+import it.at7.gemini.micronaut.exception.EntityRecordNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -22,7 +21,7 @@ import javax.inject.Inject;
 import java.util.Map;
 import java.util.Optional;
 
-@MicronautTest()
+@MicronautTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DataControllerDELETE_Test {
 
