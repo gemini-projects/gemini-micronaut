@@ -66,3 +66,14 @@ node_modules/
 .env
 
 target/
+
+
+##############################
+## IntelliJ
+##############################
+out/
+.idea/
+.idea_modules/
+*.iml
+*.ipr
+*.iws
