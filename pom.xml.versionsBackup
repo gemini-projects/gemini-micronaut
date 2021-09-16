@@ -9,7 +9,7 @@
     <groupId>it.at7.gemini.micronaut</groupId>
     <artifactId>gemini-micronaut</artifactId>
     <packaging>pom</packaging>
-    <version>0.2.0-lts</version>
+    <version>0.2.0</version>
 
      <parent>
         <groupId>io.micronaut</groupId>
@@ -24,7 +24,7 @@
         <maven.compiler.source>1.11</maven.compiler.source>
         <maven.compiler.target>1.11</maven.compiler.target>
         <micronaut.version>2.5.7</micronaut.version>
-        <gemini.version>0.2.0-lts</gemini.version>
+        <gemini.version>0.2.0</gemini.version>
     </properties>
 
     <repositories>

@@ -6,12 +6,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>gemini-micronaut-gcp-firebase</artifactId>
-    <version>0.2.0</version>
+    <version>0.2.0-lts</version>
 
     <parent>
         <groupId>it.at7.gemini.micronaut</groupId>
         <artifactId>gemini-micronaut</artifactId>
-        <version>0.2.0</version>
+        <version>0.2.0-lts</version>
     </parent>
 
     <dependencyManagement>

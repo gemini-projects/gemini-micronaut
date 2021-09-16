@@ -5,38 +5,41 @@
          http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>gemini-micronaut-core</artifactId>
-    <version>0.2.0-lts</version>
+    <artifactId>gemini-micronaut-gcp-firebase</artifactId>
+    <version>0.2.0</version>
 
     <parent>
         <groupId>it.at7.gemini.micronaut</groupId>
         <artifactId>gemini-micronaut</artifactId>
-        <version>0.2.0-lts</version>
+        <version>0.2.0</version>
     </parent>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.google.cloud</groupId>
+                <artifactId>libraries-bom</artifactId>
+                <version>20.8.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
-
         <dependency>
-            <groupId>io.micronaut</groupId>
-            <artifactId>micronaut-inject-java</artifactId>
+            <groupId>it.at7.gemini.micronaut</groupId>
+            <artifactId>gemini-micronaut-core</artifactId>
+            <version>${gemini.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.micronaut</groupId>
-            <artifactId>micronaut-validation</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.micronaut</groupId>
-            <artifactId>micronaut-graal</artifactId>
-            <scope>compile</scope>
+            <groupId>com.google.firebase</groupId>
+            <artifactId>firebase-admin</artifactId>
+            <version>8.0.0</version>
         </dependency>
 
-        <dependency>
-            <groupId>io.micronaut</groupId>
-            <artifactId>micronaut-http-server</artifactId>
-            <scope>compile</scope>
-        </dependency>
 
+        <!-- TEST dependencies -->
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-http-server-netty</artifactId>
@@ -62,9 +65,15 @@
             <artifactId>micronaut-test-junit5</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>it.at7.gemini.micronaut</groupId>
+            <artifactId>gemini-micronaut-core</artifactId>
+            <version>${gemini.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
-
     <build>
         <plugins>
 
@@ -74,11 +83,12 @@
                 <configuration>
                     <!-- Uncomment to enable incremental compilation -->
                     <!-- <useIncrementalCompilation>false</useIncrementalCompilation> -->
+
                     <annotationProcessorPaths combine.children="append">
                     </annotationProcessorPaths>
                     <compilerArgs>
-                      <arg>-Amicronaut.processing.group=it.at7.gemini</arg>
-                      <arg>-Amicronaut.processing.module=gemini-micronaut-core</arg>
+                      <arg>-Amicronaut.processing.group=it.at7.gemini.micronaut</arg>
+                      <arg>-Amicronaut.processing.module=gemini-micronaut-gcp</arg>
                     </compilerArgs>
                 </configuration>
                 <executions>
@@ -87,25 +97,6 @@
                         <goals>
                             <goal>testCompile</goal>
                         </goals>
-                        <configuration>
-                            <annotationProcessorPaths>
-                                <path>
-                                    <groupId>io.micronaut</groupId>
-                                    <artifactId>micronaut-inject-java</artifactId>
-                                    <version>${micronaut.version}</version>
-                                </path>
-                                <path>
-                                    <groupId>io.micronaut</groupId>
-                                    <artifactId>micronaut-validation</artifactId>
-                                    <version>${micronaut.version}</version>
-                                </path>
-                                <path>
-                                    <groupId>io.micronaut</groupId>
-                                    <artifactId>micronaut-graal</artifactId>
-                                    <version>${micronaut.version}</version>
-                                </path>
-                            </annotationProcessorPaths>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -114,7 +105,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.0</version>
                 <executions>
                     <execution>
                         <goals>
@@ -122,6 +112,16 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <dependenciesToScan>
+                        <dependency>it.at7.gemini.micronaut:gemini-micronaut-core</dependency>
+                    </dependenciesToScan>
+                </configuration>
             </plugin>
 
         </plugins>
