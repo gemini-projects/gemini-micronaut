@@ -10,13 +10,25 @@ import java.util.Map;
 
 public class DataListRequest {
     private final List<Filter> filters;
+    private final List<Order> orders;
+    private final int limit;
 
-    public DataListRequest(List<Filter> filters) {
+    public DataListRequest(List<Filter> filters, List<Order> orders, int limit) {
         this.filters = filters == null ? List.of() : Collections.unmodifiableList(filters);
+        this.orders = orders == null ? List.of() : Collections.unmodifiableList(orders);
+        this.limit = limit;
     }
 
     public List<Filter> getFilters() {
         return filters;
+    }
+
+    public List<Order> getOrders() {
+        return orders;
+    }
+
+    public int getLimit() {
+        return limit;
     }
 
     public static DataListRequest from(HttpRequest httpRequest) {
@@ -25,36 +37,70 @@ public class DataListRequest {
         for (Map.Entry<String, List<String>> param : parameters.asMap().entrySet()) {
             String key = param.getKey();
             List<String> value = param.getValue();
-            String field = key.endsWith("[]") ? key.substring(0, key.length() - 2) : key;
-            if (!field.startsWith("_")) {
-                for (String sval : value) {
-                    OPE_TYPE ope_type = OPE_TYPE.EQUALS;
-                    // TODO check sval operators
-                    builder.addFilter(field, ope_type, sval);
-                }
+            String field = key.endsWith("[]") ? key.substring(0, key.length() - 2) : key; // for multi value parameters
+            //if (!field.startsWith("_")) {
+
+            if (key.equals("limit")) {
+                String s = value.get(0);
+                int limit = Integer.parseInt(s);
+                builder.addLimit(limit);
+                continue;
             }
+
+            if (key.equals("orderBy")) {
+                String sortField = value.get(0);
+                ORDER_TYPE order = ORDER_TYPE.ASC;
+
+                if (sortField.charAt(0) == '-') {
+                    sortField = sortField.substring(1);
+                    order = ORDER_TYPE.DESC;
+                } else if (sortField.charAt(0) == '+') {
+                    sortField = sortField.substring(1);
+                }
+                builder.addOrderBy(sortField, order);
+                continue;
+            }
+
+            for (String sval : value) {
+                OPE_TYPE ope_type = OPE_TYPE.EQUALS;
+                // TODO check sval operators
+                builder.addFilter(field, ope_type, sval);
+                continue;
+            }
+            //}
             // TODO handle pagination and sorting
         }
 
         return builder.build();
     }
 
-    public static Builder builder(){
+    public static Builder builder() {
         return new Builder();
     }
 
     public static class Builder {
         private List<Filter> filters = new ArrayList<>();
+        private int limit = 0;
+        private List<Order> orders = new ArrayList<>();
 
-        private Builder(){}
+        private Builder() {
+        }
 
         public Builder addFilter(String field, OPE_TYPE ope_type, String sval) {
             filters.add(Filter.of(field, ope_type, sval));
             return this;
         }
 
+        public void addLimit(int limit) {
+            this.limit = limit;
+        }
+
+        public void addOrderBy(String sortField, ORDER_TYPE order) {
+            orders.add(Order.of(sortField, order));
+        }
+
         public DataListRequest build() {
-            return new DataListRequest(filters);
+            return new DataListRequest(filters, orders, limit);
         }
     }
 
@@ -86,8 +132,36 @@ public class DataListRequest {
         }
     }
 
+    public static class Order {
+        private final String fieldName;
+        private final ORDER_TYPE type;
+
+        public Order(String fieldName, ORDER_TYPE type) {
+            this.fieldName = fieldName;
+            this.type = type;
+        }
+
+        public String getFieldName() {
+            return fieldName;
+        }
+
+        public ORDER_TYPE getType() {
+            return type;
+        }
+
+        public static Order of(String fieldName, ORDER_TYPE operation) {
+            return new Order(fieldName, operation);
+        }
+
+    }
+
     public enum OPE_TYPE {
         EQUALS,
         CONTAINS
+    }
+
+    public enum ORDER_TYPE {
+        ASC,
+        DESC
     }
 }

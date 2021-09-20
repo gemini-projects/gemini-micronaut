@@ -19,6 +19,7 @@ public class FieldFilter {
         Field field = fields.get(fields.size() - 1);
         switch (field.getType()) {
             case STRING:
+            case ENTITY_REF:
                 return stringFilter(fields, filter);
             case ARRAY:
                 // return arrayFilter( fields, filter);

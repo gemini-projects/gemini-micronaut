@@ -5,6 +5,7 @@ import it.at7.gemini.micronaut.exception.EntityFieldNotFoundException;
 import it.at7.gemini.micronaut.exception.EntityRecordNotFoundException;
 import it.at7.gemini.micronaut.exception.FieldConversionException;
 
+import java.util.List;
 import java.util.Map;
 
 public interface PersistenceEntityDataManager {
@@ -13,6 +14,8 @@ public interface PersistenceEntityDataManager {
     DataResult<EntityRecord> getRecord(Entity entity, String lk, DataRequest dataRequest) throws EntityRecordNotFoundException, FieldConversionException;
 
     DataResult<EntityRecord> add(EntityRecord entityRecord) throws FieldConversionException, DuplicateLkRecordException;
+
+    DataListResult<EntityRecord> addAll(Entity entity, List<EntityRecord> entityRecordList) throws FieldConversionException;
 
     DataResult<EntityRecord> update(EntityRecord entityRecord) throws FieldConversionException;
 

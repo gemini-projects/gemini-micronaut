@@ -147,6 +147,11 @@ public class PersistenceEntityDataManagerImpl implements PersistenceEntityDataMa
     }
 
     @Override
+    public DataListResult<EntityRecord> addAll(Entity entity, List<EntityRecord> entityRecordList) throws FieldConversionException {
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    @Override
     public DataResult<EntityRecord> update(EntityRecord entityRecord) throws FieldConversionException {
         try {
             // check if the key was changed

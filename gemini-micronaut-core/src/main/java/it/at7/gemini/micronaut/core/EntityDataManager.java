@@ -2,6 +2,8 @@ package it.at7.gemini.micronaut.core;
 
 import it.at7.gemini.micronaut.exception.*;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public interface EntityDataManager {
@@ -24,7 +26,11 @@ public interface EntityDataManager {
 
     DataResult<EntityRecord> add(Map<String, Object> data) throws FieldConversionException, DuplicateLkRecordException, EntityRecordValidationException, EntitySingleRecordException;
 
+    DataListResult<EntityRecord> addAll(Collection<Map<String, Object>> dataList) throws DuplicateLkRecordException, EntityRecordValidationException, EntitySingleRecordException, EntityRecordListValidationException, FieldConversionException;
+
     DataResult<EntityRecord> add(EntityRecord er) throws FieldConversionException, DuplicateLkRecordException, EntityRecordValidationException, EntitySingleRecordException;
+
+    DataListResult<EntityRecord> addAll(List<EntityRecord> entityRecordList) throws DuplicateLkRecordException, EntitySingleRecordException, EntityRecordListValidationException, FieldConversionException;
 
     DataResult<EntityRecord> fullUpdate(String lk, Map<String, Object> data) throws EntityRecordNotFoundException, FieldConversionException, EntityFieldNotFoundException;
 

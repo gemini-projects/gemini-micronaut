@@ -6,12 +6,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>gemini-micronaut-core</artifactId>
-    <version>0.2.0</version>
 
     <parent>
         <groupId>it.at7.gemini.micronaut</groupId>
         <artifactId>gemini-micronaut</artifactId>
-        <version>0.2.0</version>
+        <version>0.5.13</version>
     </parent>
 
     <dependencies>
@@ -34,6 +33,11 @@
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-http-server</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.micronaut.reactor</groupId>
+            <artifactId>micronaut-reactor</artifactId>
             <scope>compile</scope>
         </dependency>
 
@@ -77,8 +81,8 @@
                     <annotationProcessorPaths combine.children="append">
                     </annotationProcessorPaths>
                     <compilerArgs>
-                      <arg>-Amicronaut.processing.group=it.at7.gemini</arg>
-                      <arg>-Amicronaut.processing.module=gemini-micronaut-core</arg>
+                        <arg>-Amicronaut.processing.group=it.at7.gemini</arg>
+                        <arg>-Amicronaut.processing.module=gemini-micronaut-core</arg>
                     </compilerArgs>
                 </configuration>
                 <executions>

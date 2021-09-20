@@ -4,6 +4,7 @@ import it.at7.gemini.micronaut.exception.FieldConversionException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -138,9 +139,8 @@ public class FieldConverter {
             }
         }
         if (value instanceof Date) {
-            Calendar cal = Calendar.getInstance();
-            cal.setTime((Date) value);
-            return LocalDate.of(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DATE));
+            Date dval = (Date) value;
+            return dval.toInstant().atZone(ZoneId.of("UTC")).toLocalDate();
         }
         try {
             return LocalDate.parse(String.valueOf(value));
@@ -239,9 +239,12 @@ public class FieldConverter {
         switch (field.getType()) {
             case STRING:
             case BOOL:
-            case ENUM: {
+            case ENUM:
+            case ENTITY_REF: {
                 return String.valueOf(value);
             }
+            case DATE:
+                return ((LocalDate) value).toString();
             case OBJECT: {
                 if (Map.class.isAssignableFrom(value.getClass())) {
                     Map<String, Object> mapValue = (Map<String, Object>) value;

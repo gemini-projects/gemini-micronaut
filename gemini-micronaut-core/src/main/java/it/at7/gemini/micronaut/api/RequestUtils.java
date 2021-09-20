@@ -7,6 +7,7 @@ import it.at7.gemini.micronaut.core.*;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -35,11 +36,24 @@ public class RequestUtils {
         return tlogger;
     }
 
-    public static Map<String, Object> getRequestData(@Body DataRequest body) {
-        Map<String, Object> data = body.getData();
-        if (data == null)
+    public static boolean isDataMap(DataRequest body) {
+        return body.getData() instanceof Map;
+    }
+
+    public static Map<String, Object> getRequestDataMap(@Body DataRequest body) {
+        if (body.getData() == null)
             throw new CodecException("data field not found in request body");
-        return data;
+        if (!(body.getData() instanceof Map))
+            throw new RuntimeException("data field must be an object");
+        return (Map<String, Object>) body.getData();
+    }
+
+    public static List<Map<String, Object>> getRequestDataList(@Body DataRequest body) {
+        if (body.getData() == null)
+            throw new CodecException("data field not found in request body");
+        if (!(body.getData() instanceof Collection))
+            throw new RuntimeException("data field must be an object");
+        return (List<Map<String, Object>>) body.getData();
     }
 
     public static HttpResponse<GeminiHttpResponse> readyResponse(DataResult<EntityRecord> result, HttpRequest request) {
@@ -78,5 +92,4 @@ public class RequestUtils {
         resp.body(response);
         return resp;
     }
-
 }

@@ -5,19 +5,24 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>gemini-micronaut-mongodb</artifactId>
-    <version>0.2.0</version>
+    <version>0.5.13</version>
 
     <parent>
         <groupId>it.at7.gemini.micronaut</groupId>
         <artifactId>gemini-micronaut</artifactId>
-        <version>0.2.0</version>
+        <version>0.5.13</version>
     </parent>
 
     <dependencies>
         <dependency>
             <groupId>it.at7.gemini.micronaut</groupId>
             <artifactId>gemini-micronaut-core</artifactId>
-            <version>${gemini.version}</version>
+            <version>0.5.13</version>
+        </dependency>
+        <dependency>
+            <groupId>it.at7.gemini.micronaut</groupId>
+            <artifactId>gemini-micronaut-auth</artifactId>
+            <version>0.5.13</version>
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
@@ -54,7 +59,7 @@
         <dependency>
             <groupId>it.at7.gemini.micronaut</groupId>
             <artifactId>gemini-micronaut-core</artifactId>
-            <version>${gemini.version}</version>
+            <version>0.5.13</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>

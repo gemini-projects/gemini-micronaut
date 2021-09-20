@@ -1,7 +1,6 @@
 package it.at7.gemini.micronaut.schema;
 
 import io.micronaut.context.annotation.Prototype;
-import io.micronaut.context.annotation.Value;
 import io.micronaut.core.io.ResourceLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +8,8 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
 import javax.inject.Inject;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -22,21 +23,14 @@ import java.util.*;
 public class SchemaLoader {
     private static Logger logger = LoggerFactory.getLogger(SchemaLoader.class);
 
-    @Value("${gemini.entity.schema.resources:entity_schema.yaml}")
-    List<String> entityResources;
-
     @Inject
     ResourceLoader resourceLoader;
-
-    public LoadedSchema load() throws IOException {
-        return load(entityResources);
-    }
 
     public LoadedSchema load(String schemaresource) throws IOException {
         return load(List.of(schemaresource));
     }
 
-    public LoadedSchema load(List<String> entityResources) throws IOException {
+    public LoadedSchema load(List<String> entityResources) {
         Map<String, RawSchema> result = new HashMap<>();
         List<String> hashedSchema = new ArrayList<>();
         if (entityResources.isEmpty()) {
@@ -46,12 +40,22 @@ public class SchemaLoader {
         try {
             for (String entityResource : entityResources) {
 
-                Optional<InputStream> resourceOpt = resourceLoader.getResourceAsStream(entityResource);
-                if (resourceOpt.isEmpty()) {
-                    throw new RuntimeException(String.format("Unable to load Entity Schema: %s", entityResource));
+                // step 1 try to get the file, if not found try to get the resource
+
+                InputStream schemaInputStream;
+                try {
+                    schemaInputStream = new FileInputStream(entityResource);
+                } catch (FileNotFoundException fnot) {
+                    logger.info(fnot.getMessage());
+                    Optional<InputStream> resourceOpt = resourceLoader.getResourceAsStream(entityResource);
+                    if (resourceOpt.isEmpty()) {
+                        throw new RuntimeException(String.format("Unable to load Entity Schema from File or Resource: %s", entityResource));
+                    }
+                    schemaInputStream = resourceOpt.get();
                 }
+
                 logger.info("Loaded Schema: " + entityResource);
-                InputStream schemaInputStream = resourceOpt.get();
+
                 MessageDigest md = MessageDigest.getInstance("MD5");
 
                 DigestInputStream dis = new DigestInputStream(schemaInputStream, md);
