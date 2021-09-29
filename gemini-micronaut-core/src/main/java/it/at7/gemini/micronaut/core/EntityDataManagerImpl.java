@@ -79,8 +79,8 @@ public class EntityDataManagerImpl implements EntityDataManager {
     }
 
     @Override
-    public DataResult<EntityRecord> fullUpdate(String lk, Map<String, Object> data) throws EntityRecordNotFoundException, FieldConversionException, EntityFieldNotFoundException {
-        DataResult<EntityRecord> record = getRecordCeckingSingleEntityRec(lk);
+    public DataResult<EntityRecord> fullUpdate(String lk, Map<String, Object> data) throws EntityRecordNotFoundException, FieldConversionException, EntityFieldNotFoundException, EntityRecordValidationException {
+        DataResult<EntityRecord> record = getRecord(lk);
         EntityRecord er = record.getData();
         er.set(data);
 
@@ -95,6 +95,10 @@ public class EntityDataManagerImpl implements EntityDataManager {
                 er.remove(f);
             }
         }
+
+        EntityRecord.ValidationResult validation = er.validate();
+        if (!validation.isValid())
+            throw new EntityRecordValidationException(er, validation);
 
         return update(er);
     }
@@ -120,6 +124,16 @@ public class EntityDataManagerImpl implements EntityDataManager {
         DataResult<EntityRecord> record = getRecord(id, null);
         EntityRecord er = record.getData();
         return this.persistenceEntityDataManager.delete(er);
+    }
+
+    private DataResult<EntityRecord> getRecordOrCreate(String lk) throws FieldConversionException, EntityRecordNotFoundException {
+        try {
+            return getRecord(lk, null);
+        } catch (EntityRecordNotFoundException e) {
+            if (entity.isSingleRecord() && !entity.getLkSingleRecValue().equals(lk))
+                throw e;
+            return DataResult.from(new EntityRecord(entity));
+        }
     }
 
     private DataResult<EntityRecord> getRecordCeckingSingleEntityRec(String lk) throws FieldConversionException, EntityRecordNotFoundException {

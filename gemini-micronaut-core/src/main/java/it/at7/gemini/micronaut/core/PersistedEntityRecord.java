@@ -39,11 +39,18 @@ public class PersistedEntityRecord extends EntityRecord {
 
     public String getLastLkString(String separator) throws FieldConversionException {
         StringBuilder res = new StringBuilder();
+        boolean isFirst = true;
         for (Field lkField : this.getEntity().getLkFields()) {
             Object fieldOriginalValue = lastLk.get(lkField.getName());
             if (fieldOriginalValue == null)
                 fieldOriginalValue = super.getData().get(lkField.getName());
-            res.append(FieldConverter.toStringValue(lkField, fieldOriginalValue, separator));
+            String stValue = FieldConverter.toStringValue(lkField, fieldOriginalValue, separator);
+            if (!stValue.isEmpty()) {
+                if (!isFirst)
+                    res.append(separator);
+                res.append(stValue);
+                isFirst = false;
+            }
         }
         return res.toString();
     }

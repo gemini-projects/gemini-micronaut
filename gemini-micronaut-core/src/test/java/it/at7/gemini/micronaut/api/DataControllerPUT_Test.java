@@ -122,11 +122,21 @@ class DataControllerPUT_Test {
     }
 
     @Test
-    void putByIdNotFound() {
-        HttpClientResponseException resp = Assertions.assertThrows(HttpClientResponseException.class, () -> {
-            client.toBlocking().exchange(HttpRequest.PUT("/basetypes/unknown", Map.of("data", Map.of("field", "a"))), GeminiHttpResponse.class);
-        });
-        Assertions.assertEquals(resp.getStatus(), HttpStatus.NOT_FOUND);
+    void putByIdNewRecord() {
+        // put change all field (not logical key)
+        HttpResponse<GeminiHttpResponse> resp = client.toBlocking().exchange(HttpRequest.PUT("/basetypes/put_lk_NEW" + random,
+                Map.of("data", Map.of("stringField", "put_lk_NEW" + random,
+                        "enumField", "E2",
+                        "booleanField", false))), GeminiHttpResponse.class);
+        Assertions.assertEquals(resp.getStatus(), HttpStatus.OK);
+        Optional<GeminiHttpResponse> body = resp.getBody();
+        Assertions.assertTrue(body.isPresent());
+        GeminiHttpResponse gr = body.get();
+        Map<String, Object> record = (Map<String, Object>) gr.getData();
+        Assertions.assertNotNull(record);
+        Assertions.assertEquals("put_lk_NEW" + random, record.get("stringField"));
+        Assertions.assertEquals("E2", record.get("enumField"));
+        Assertions.assertEquals(false, record.get("booleanField"));
     }
 
 }

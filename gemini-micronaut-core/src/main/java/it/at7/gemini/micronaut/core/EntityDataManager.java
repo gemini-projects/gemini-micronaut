@@ -32,7 +32,7 @@ public interface EntityDataManager {
 
     DataListResult<EntityRecord> addAll(List<EntityRecord> entityRecordList) throws DuplicateLkRecordException, EntitySingleRecordException, EntityRecordListValidationException, FieldConversionException;
 
-    DataResult<EntityRecord> fullUpdate(String lk, Map<String, Object> data) throws EntityRecordNotFoundException, FieldConversionException, EntityFieldNotFoundException;
+    DataResult<EntityRecord> fullUpdate(String lk, Map<String, Object> data) throws EntityRecordNotFoundException, FieldConversionException, EntityFieldNotFoundException, EntityRecordValidationException;
 
     DataResult<EntityRecord> partialUpdate(String lk, Map<String, Object> data) throws FieldConversionException, EntityRecordNotFoundException, EntityFieldNotFoundException;
 

@@ -65,12 +65,27 @@ public class DataController {
     HttpResponse<GeminiHttpResponse> putById(@PathVariable("entity") String entityName,
                                              @PathVariable("id") String id,
                                              @Body DataRequest body,
-                                             HttpRequest httpRequest) throws EntityNotFoundException, EntityRecordNotFoundException, FieldConversionException, EntityFieldNotFoundException {
+                                             HttpRequest httpRequest) throws EntityNotFoundException, FieldConversionException, EntityFieldNotFoundException, EntityRecordValidationException {
         RequestUtils.crateAndSetTimeLogger(logger, httpRequest, "PUT-ENTITY-BYID", entityName + " " + id);
 
         EntityDataManager entityDataManager = this.entityManager.getDataManager(entityName);
         Map<String, Object> data = RequestUtils.getRequestDataMap(body);
-        DataResult<EntityRecord> record = entityDataManager.fullUpdate(id, data);
+        DataResult<EntityRecord> record = null;
+        try {
+            record = entityDataManager.fullUpdate(id, data);
+        } catch (EntityRecordNotFoundException e) {
+            try {
+                EntityRecord newRec = EntityRecord.fromDataMap(entityDataManager.getEntity(), data);
+                if(!id.equals(newRec.getLkString()))
+                    throw new RuntimeException("Lk is not as fields"); // TODO
+
+                record = entityDataManager.add(newRec);
+            } catch (DuplicateLkRecordException | EntitySingleRecordException ex) {
+                // it should not happen
+               throw new RuntimeException(ex);
+            }
+        }
+
         return RequestUtils.readyResponse(record, httpRequest);
     }
 
