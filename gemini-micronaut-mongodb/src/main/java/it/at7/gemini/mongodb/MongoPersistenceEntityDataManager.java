@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 
 import static com.mongodb.client.model.Filters.eq;
 import static it.at7.gemini.mongodb.FieldFilter.fieldFilter;
+import static it.at7.gemini.mongodb.FieldSorter.fieldSorter;
 
 @DefaultEntityDataManager
 public class MongoPersistenceEntityDataManager implements PersistenceEntityDataManager {
@@ -33,9 +34,17 @@ public class MongoPersistenceEntityDataManager implements PersistenceEntityDataM
     @Value("${gemini.mongodb.db}")
     String dbName;
 
-
     MongoClient mongoClient;
     MongoDatabase db;
+
+    public MongoPersistenceEntityDataManager() {
+    }
+
+    public MongoPersistenceEntityDataManager(String url, String dbName) {
+        this.url = url;
+        this.dbName = dbName;
+        init();
+    }
 
     @PostConstruct
     public void init() {
@@ -47,18 +56,28 @@ public class MongoPersistenceEntityDataManager implements PersistenceEntityDataM
     public DataListResult<EntityRecord> getRecords(Entity entity, DataListRequest dataListRequest) throws EntityFieldNotFoundException, FieldConversionException {
 
         Bson filter = new Document(); // empty filter, as documentation say
-        if (!dataListRequest.getFilters().isEmpty()) {
-            List<Bson> filters = new ArrayList<>();
-            for (DataListRequest.Filter f : dataListRequest.getFilters()) {
-                filters.add(fieldFilter(entity, f));
+        List<DataListRequest.Filter> reqFilters = dataListRequest.getFilters();
+        if (!reqFilters.isEmpty()) {
+            List<Bson> mongoFilters = new ArrayList<>();
+            for (DataListRequest.Filter f : reqFilters) {
+                mongoFilters.add(fieldFilter(entity, f));
             }
-            filter = Filters.and(filters);
+            filter = Filters.and(mongoFilters);
         }
         String entityCollectionName = getEntityCollectionName(entity);
         MongoCollection<Document> collection = this.db.getCollection(entityCollectionName);
 
+        FindIterable<Document> documents = collection.find(filter);
+
+        for (DataListRequest.Order order : dataListRequest.getOrders()) {
+            fieldSorter(documents, entity, order);
+        }
+
+        if (dataListRequest.getLimit() > 0) {
+            documents.limit(dataListRequest.getLimit());
+        }
         List<EntityRecord> res = new ArrayList<>();
-        for (Document doc : collection.find(filter)) {
+        for (Document doc : documents) {
             Map<String, Object> map = doc.entrySet().stream()
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             EntityRecord persistedEntityRecord = new PersistedEntityRecord(entity);
@@ -128,6 +147,46 @@ public class MongoPersistenceEntityDataManager implements PersistenceEntityDataM
     }
 
     @Override
+    public DataListResult<EntityRecord> addAll(Entity entity, List<EntityRecord> entityRecordList) throws FieldConversionException {
+        String collectionName = getEntityCollectionName(entity);
+        MongoCollection<Document> collection = this.db.getCollection(collectionName);
+
+        ClientSession clientSession = this.mongoClient.startSession();
+        clientSession.startTransaction();
+        Date createTime = new Date();
+
+        List<Document> docs = new ArrayList<>(entityRecordList.size());
+        for (EntityRecord entityRecord : entityRecordList) {
+            long count = collection.countDocuments(clientSession, eq("_lk", entityRecord.getLkString()));
+            if (count == 0) {
+                Document mongoDoc = new Document("_lk", entityRecord.getLkString());
+                mongoDoc.putAll(entityRecord.getData());
+                mongoDoc.put("_lastUpdate", createTime);
+                docs.add(mongoDoc);
+
+            } else {
+                // We found the document // TODO exception
+                // throw new DuplicateLkRecordException(entityRecord.getEntity(), entityRecord.getLkString());
+
+
+            }
+        }
+        collection.insertMany(clientSession, docs);
+        MongoCollection<Document> summaryCollection = db.getCollection(SUMMARY_COLLECTION);
+        UpdateResult updateResult = summaryCollection.updateOne(eq("_lk", "default"), Updates.set(collectionName + "." + "NEW_time", createTime));
+        if (updateResult.getMatchedCount() == 0)
+            summaryCollection.insertOne(new Document("_lk", "default").append(collectionName, new Document("NEW_time", createTime)));
+
+        clientSession.commitTransaction();
+
+        List<EntityRecord> res = new ArrayList<>(entityRecordList.size());
+        for (EntityRecord rec : entityRecordList) {
+            res.add(PersistedEntityRecord.from(rec));
+        }
+        return DataListResult.from(res).setLastUpdate(createTime.getTime());
+    }
+
+    @Override
     public DataResult<EntityRecord> update(EntityRecord entityRecord) throws FieldConversionException {
         String lkString = entityRecord.getLkString();
         String collectionName = getEntityCollectionName(entityRecord.getEntity());
@@ -151,9 +210,11 @@ public class MongoPersistenceEntityDataManager implements PersistenceEntityDataM
             theDoc.put("_lastUpdate", updateTime);
             theDoc.put("_lk", lkString);
             Document doc = collection.findOneAndReplace(eq("_lk", toFindLkFinal), theDoc);
-
             if (doc == null) {
-                throw new RuntimeException(String.format("record %s not found", lkString));
+                if (!entityRecord.getEntity().isSingleRecord())
+                    throw new RuntimeException(String.format("record %s not found", lkString));
+                else
+                    collection.insertOne(theDoc);
             }
 
             MongoCollection<Document> summaryCollection = db.getCollection(SUMMARY_COLLECTION);
@@ -213,7 +274,7 @@ public class MongoPersistenceEntityDataManager implements PersistenceEntityDataM
         Map<String, EntityTimes> ret = new HashMap<>();
         for (Map.Entry<String, Object> entry : summary.entrySet()) {
             String key = entry.getKey();
-            if(!key.startsWith("_")) {
+            if (!key.startsWith("_")) {
                 Map<String, Object> value = (Map<String, Object>) entry.getValue();
                 Date update = (Date) value.get("UPDATE_time");
                 Date create = (Date) value.get("NEW_time");

@@ -27,12 +27,11 @@ public class EntityManagerImpl implements EntityManager {
     private List<PersistenceEntityDataManager> customPersistenceManagers;
     private LoadedSchema loadedSchema;
 
-    /* @Value("${gemini.entity.schema.lkSingleRecord:}")
-    private String lkSingleRecord; */
+    @Value("${gemini.entity.schema.resources:entity_schema.yaml}")
+    List<String> entityResources;
 
     @Value("${gemini.entity.schema.defaultGetStrategies:ALL}")
     List<String> ENTITY_DEFAULT_GET_STRATEGIES;
-
 
     private static RawSchema schemaDefaults(RawSchema rawSchema, List<String> ENTITY_DEFAULT_GET_STRATEGIES) {
         if (rawSchema.entity.getStrategies == null || rawSchema.entity.getStrategies.isEmpty()) {
@@ -43,9 +42,7 @@ public class EntityManagerImpl implements EntityManager {
 
     @PostConstruct
     void init(ApplicationContext applicationContext, SchemaLoader schemaLoader) throws IOException {
-        /* if (lkSingleRecord != null && !lkSingleRecord.isEmpty())
-            Configurations.setLkSingleRecord(lkSingleRecord); */
-        this.loadedSchema = schemaLoader.load();
+        this.loadedSchema = schemaLoader.load(entityResources);
         Collection<RawSchema> rawSchemas = loadedSchema.getRawSchemas();
         this.rawSchemaEntities = rawSchemas.stream().filter(s -> s.type.equals(RawSchema.Type.ENTITY))
                 .map(s -> schemaDefaults(s, ENTITY_DEFAULT_GET_STRATEGIES))

@@ -1,40 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>it.at7.gemini</groupId>
+
     <artifactId>gemini-micronaut-core</artifactId>
-    <version>0.1</version>
 
     <parent>
-        <groupId>io.micronaut</groupId>
-        <artifactId>micronaut-parent</artifactId>
-        <version>2.4.0</version>
+        <groupId>it.at7.gemini.micronaut</groupId>
+        <artifactId>gemini-micronaut</artifactId>
+        <version>0.5.15</version>
     </parent>
-
-    <properties>
-        <maven.compiler.release>11</maven.compiler.release>
-        <release.version>11</release.version>
-        <jdk.version>1.11</jdk.version>
-        <maven.compiler.source>1.11</maven.compiler.source>
-        <maven.compiler.target>1.11</maven.compiler.target>
-        <micronaut.version>2.4.0</micronaut.version>
-    </properties>
-
-    <repositories>
-        <repository>
-            <id>jcenter.bintray.com</id>
-            <url>https://jcenter.bintray.com</url>
-        </repository>
-    </repositories>
-
 
     <dependencies>
 
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-inject-java</artifactId>
-            <version>${micronaut.version}</version>
         </dependency>
         <dependency>
             <groupId>io.micronaut</groupId>
@@ -50,6 +33,11 @@
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-http-server</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.micronaut.reactor</groupId>
+            <artifactId>micronaut-reactor</artifactId>
             <scope>compile</scope>
         </dependency>
 
@@ -79,13 +67,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!--<dependency>
-            <groupId>io.micronaut.gcp</groupId>
-            <artifactId>micronaut-gcp-function-http-test</artifactId>
-            <version>3.2.0</version>
-            <scope>test</scope>
-        </dependency> -->
-
     </dependencies>
 
     <build>
@@ -97,26 +78,11 @@
                 <configuration>
                     <!-- Uncomment to enable incremental compilation -->
                     <!-- <useIncrementalCompilation>false</useIncrementalCompilation> -->
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>io.micronaut</groupId>
-                            <artifactId>micronaut-inject-java</artifactId>
-                            <version>${micronaut.version}</version>
-                        </path>
-                        <path>
-                            <groupId>io.micronaut</groupId>
-                            <artifactId>micronaut-validation</artifactId>
-                            <version>${micronaut.version}</version>
-                        </path>
-                        <path>
-                            <groupId>io.micronaut</groupId>
-                            <artifactId>micronaut-graal</artifactId>
-                            <version>${micronaut.version}</version>
-                        </path>
+                    <annotationProcessorPaths combine.children="append">
                     </annotationProcessorPaths>
                     <compilerArgs>
-                      <arg>-Amicronaut.processing.group=it.at7.gemini</arg>
-                      <arg>-Amicronaut.processing.module=gemini-micronaut-core</arg>
+                        <arg>-Amicronaut.processing.group=it.at7.gemini</arg>
+                        <arg>-Amicronaut.processing.module=gemini-micronaut-core</arg>
                     </compilerArgs>
                 </configuration>
                 <executions>
@@ -135,10 +101,12 @@
                                 <path>
                                     <groupId>io.micronaut</groupId>
                                     <artifactId>micronaut-validation</artifactId>
+                                    <version>${micronaut.version}</version>
                                 </path>
                                 <path>
                                     <groupId>io.micronaut</groupId>
                                     <artifactId>micronaut-graal</artifactId>
+                                    <version>${micronaut.version}</version>
                                 </path>
                             </annotationProcessorPaths>
                         </configuration>
@@ -150,6 +118,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
                 <executions>
                     <execution>
                         <goals>
@@ -158,16 +127,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-
-            <!--<plugin>
-                <groupId>com.google.cloud.functions</groupId>
-                <artifactId>function-maven-plugin</artifactId>
-                <version>0.9.4</version>
-                <configuration>
-                    <functionTarget>io.micronaut.gcp.function.http.HttpFunction</functionTarget>
-                </configuration>
-            </plugin>-->
 
         </plugins>
     </build>

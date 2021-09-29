@@ -7,12 +7,14 @@ import io.micronaut.http.client.HttpClient;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.runtime.server.EmbeddedServer;
-import io.micronaut.test.annotation.MicronautTest;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import it.at7.gemini.micronaut.core.DataResult;
 import it.at7.gemini.micronaut.core.EntityDataManager;
 import it.at7.gemini.micronaut.core.EntityManager;
 import it.at7.gemini.micronaut.core.EntityRecord;
-import it.at7.gemini.micronaut.exception.*;
+import it.at7.gemini.micronaut.exception.EntityNotFoundException;
+import it.at7.gemini.micronaut.exception.EntityRecordNotFoundException;
+import it.at7.gemini.micronaut.exception.FieldConversionException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -21,8 +23,9 @@ import org.junit.jupiter.api.TestInstance;
 import javax.inject.Inject;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
-@MicronautTest()
+@MicronautTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DataControllerPATCH_Test {
 
@@ -36,19 +39,22 @@ class DataControllerPATCH_Test {
     @Inject
     EntityManager entityManager;
 
+    String random;
+
     @BeforeAll
     void addSomeData() throws Exception {
         EntityDataManager basetypes = entityManager.getDataManager("basetypes");
 
-        basetypes.add(Map.of("stringField", "patch_lk",
+        random = UUID.randomUUID().toString();
+        basetypes.add(Map.of("stringField", "patch_lk" + random,
                 "enumField", "E1",
                 "booleanField", true));
 
-        basetypes.add(Map.of("stringField", "patch_lk_partial",
+        basetypes.add(Map.of("stringField", "patch_lk_partial" + random,
                 "enumField", "E1",
                 "booleanField", true));
 
-        basetypes.add(Map.of("stringField", "patch_lkchange",
+        basetypes.add(Map.of("stringField", "patch_lkchange" + random,
                 "enumField", "E1",
                 "booleanField", true));
     }
@@ -57,8 +63,8 @@ class DataControllerPATCH_Test {
     void patchById_allFields() {
 
         // put change all field (not logical key)
-        HttpResponse<GeminiHttpResponse> resp = client.toBlocking().exchange(HttpRequest.PATCH("/basetypes/patch_lk",
-                Map.of("data", Map.of("stringField", "patch_lk",
+        HttpResponse<GeminiHttpResponse> resp = client.toBlocking().exchange(HttpRequest.PATCH("/basetypes/patch_lk" + random,
+                Map.of("data", Map.of("stringField", "patch_lk" + random,
                         "enumField", "E2",
                         "booleanField", false))), GeminiHttpResponse.class);
         Assertions.assertEquals(resp.getStatus(), HttpStatus.OK);
@@ -67,7 +73,7 @@ class DataControllerPATCH_Test {
         GeminiHttpResponse gr = body.get();
         Map<String, Object> record = (Map<String, Object>) gr.getData();
         Assertions.assertNotNull(record);
-        Assertions.assertEquals("patch_lk", record.get("stringField"));
+        Assertions.assertEquals("patch_lk" + random, record.get("stringField"));
         Assertions.assertEquals("E2", record.get("enumField"));
         Assertions.assertEquals(false, record.get("booleanField"));
     }
@@ -77,7 +83,7 @@ class DataControllerPATCH_Test {
         // put with partial data - but full update -> field to null
 
         // put change all field (not logical key)
-        HttpResponse<GeminiHttpResponse> resp = client.toBlocking().exchange(HttpRequest.PATCH("/basetypes/patch_lk_partial",
+        HttpResponse<GeminiHttpResponse> resp = client.toBlocking().exchange(HttpRequest.PATCH("/basetypes/patch_lk_partial" + random,
                 Map.of("data", Map.of(
                         "booleanField", true))), GeminiHttpResponse.class);
         Assertions.assertEquals(resp.getStatus(), HttpStatus.OK);
@@ -86,7 +92,7 @@ class DataControllerPATCH_Test {
         GeminiHttpResponse gr = body.get();
         Map<String, Object> record = (Map<String, Object>) gr.getData();
         Assertions.assertNotNull(record);
-        Assertions.assertEquals("patch_lk_partial", record.get("stringField"));
+        Assertions.assertEquals("patch_lk_partial" + random, record.get("stringField"));
         Assertions.assertEquals("E1", record.get("enumField"));
         Assertions.assertEquals(true, record.get("booleanField"));
 
@@ -95,31 +101,31 @@ class DataControllerPATCH_Test {
     @Test
     void patchtById_ChangeLK() throws EntityRecordNotFoundException, FieldConversionException, EntityNotFoundException {
         // put changing also lk
-        HttpResponse<GeminiHttpResponse> resp = client.toBlocking().exchange(HttpRequest.PATCH("/basetypes/patch_lkchange",
-                Map.of("data", Map.of("stringField", "patch_lkchange_newLK"
-                        ))), GeminiHttpResponse.class);
+        HttpResponse<GeminiHttpResponse> resp = client.toBlocking().exchange(HttpRequest.PATCH("/basetypes/patch_lkchange" + random,
+                Map.of("data", Map.of("stringField", "patch_lkchange_newLK" + random
+                ))), GeminiHttpResponse.class);
         Assertions.assertEquals(resp.getStatus(), HttpStatus.OK);
         Optional<GeminiHttpResponse> body = resp.getBody();
         Assertions.assertTrue(body.isPresent());
         GeminiHttpResponse gr = body.get();
         Map<String, Object> record = (Map<String, Object>) gr.getData();
         Assertions.assertNotNull(record);
-        Assertions.assertEquals("patch_lkchange_newLK", record.get("stringField"));
+        Assertions.assertEquals("patch_lkchange_newLK" + random, record.get("stringField"));
         Assertions.assertEquals("E1", record.get("enumField"));
         Assertions.assertEquals(true, record.get("booleanField"));
 
         EntityDataManager basetypes = entityManager.getDataManager("basetypes");
 
-        Assertions.assertThrows(EntityRecordNotFoundException.class, () -> basetypes.getRecord("patch_lkchange"));
+        Assertions.assertThrows(EntityRecordNotFoundException.class, () -> basetypes.getRecord("patch_lkchange" + random));
 
-        DataResult<EntityRecord> newLk = basetypes.getRecord("patch_lkchange_newLK");
+        DataResult<EntityRecord> newLk = basetypes.getRecord("patch_lkchange_newLK" + random);
         Assertions.assertNotNull(newLk);
     }
 
     @Test
     void patchByIdNotFound() {
         HttpClientResponseException resp = Assertions.assertThrows(HttpClientResponseException.class, () -> {
-            client.toBlocking().exchange(HttpRequest.PATCH("/basetypes/unknown",  Map.of("data", Map.of("field", "a"))), GeminiHttpResponse.class);
+            client.toBlocking().exchange(HttpRequest.PATCH("/basetypes/unknown", Map.of("data", Map.of("field", "a"))), GeminiHttpResponse.class);
         });
         Assertions.assertEquals(resp.getStatus(), HttpStatus.NOT_FOUND);
     }

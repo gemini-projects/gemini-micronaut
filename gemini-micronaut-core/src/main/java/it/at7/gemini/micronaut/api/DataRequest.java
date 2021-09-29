@@ -7,16 +7,16 @@ import java.util.Map;
 @Introspected
 public class DataRequest {
 
-    Map<String, Object> data;
+    Object data;
 
     public DataRequest() {
     }
 
-    public DataRequest(Map<String, Object> data) {
+    public DataRequest(Object data) {
         this.data = data;
     }
 
-    public Map<String, Object> getData() {
+    public Object getData() {
         return data;
     }
 }

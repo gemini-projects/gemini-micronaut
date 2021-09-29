@@ -10,7 +10,9 @@ import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 
 import static java.util.Map.entry;
 
@@ -27,7 +29,7 @@ class EntityManagerImplBaseTypesTest {
 
         EntityDataManager btManager = entityManager.getDataManager("BASETYPES");
         Map<String, Object> newRecFields = Map.ofEntries(
-                entry("stringField", "lk"),
+                entry("stringField", "lk" + UUID.randomUUID().toString()),
                 entry("booleanField", true),
                 entry("enumField", "E1"),
                 entry("intField", 42),

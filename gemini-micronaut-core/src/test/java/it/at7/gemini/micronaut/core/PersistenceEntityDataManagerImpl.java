@@ -45,6 +45,12 @@ public class PersistenceEntityDataManagerImpl implements PersistenceEntityDataMa
     }
 
     @Override
+    public DataListResult<EntityRecord> addAll(Entity entity, List<EntityRecord> entityRecordList) throws FieldConversionException {
+        // TODO
+        return null;
+    }
+
+    @Override
     public DataResult<EntityRecord> update(EntityRecord entityRecord) throws FieldConversionException {
         String entityStoreKey = entityRecord.getEntity().getName();
         Map<String, EntityRecord> entityStore = store.computeIfAbsent(entityStoreKey, k -> new HashMap<>());

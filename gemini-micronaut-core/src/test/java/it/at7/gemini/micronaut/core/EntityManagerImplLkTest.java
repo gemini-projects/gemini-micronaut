@@ -5,7 +5,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
+import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 
 @MicronautTest
 class EntityManagerImplLkTest {
@@ -17,14 +19,14 @@ class EntityManagerImplLkTest {
     void testInsert() throws Exception {
         Entity basetypes = entityManager.get("MULTIPLELK");
         Assertions.assertNotNull(basetypes);
-
+        String uuid = UUID.randomUUID().toString();
         EntityDataManager btManager = entityManager.getDataManager("MULTIPLELK");
         Map<String, Object> newRecFields = Map.of(
-                "id1", "lk",
-                "id2", "lk2"
+                "id1", "lk" ,
+                "id2", "lk2"+uuid
         );
         DataResult<EntityRecord> added = btManager.add(newRecFields);
-        Assertions.assertEquals("lk_lk2", added.getData().getLkString());
+        Assertions.assertEquals("lk_lk2" + uuid, added.getData().getLkString());
 
         EntityRecord data = added.getData();
         Map<String, Object> returnedMapConverted = data.getData();

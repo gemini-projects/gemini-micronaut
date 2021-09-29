@@ -1,40 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>it.at7.gemini</groupId>
     <artifactId>gemini-micronaut-gcp-firebase</artifactId>
-    <version>0.1</version>
 
     <parent>
-        <groupId>io.micronaut</groupId>
-        <artifactId>micronaut-parent</artifactId>
-        <version>2.4.0</version>
+        <groupId>it.at7.gemini.micronaut</groupId>
+        <artifactId>gemini-micronaut</artifactId>
+        <version>0.5.15</version>
     </parent>
-
-    <properties>
-        <micronaut.version>2.4.0</micronaut.version>
-        <maven.compiler.release>11</maven.compiler.release>
-        <maven.compiler.source>1.11</maven.compiler.source>
-        <maven.compiler.target>1.11</maven.compiler.target>
-        <exec.mainClass>it.at7.gemini.micronaut.Application</exec.mainClass>
-    </properties>
-
-    <repositories>
-        <repository>
-            <id>jcenter.bintray.com</id>
-            <url>https://jcenter.bintray.com</url>
-        </repository>
-    </repositories>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>com.google.cloud</groupId>
                 <artifactId>libraries-bom</artifactId>
-                <version>16.1.0</version>
+                <version>20.8.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -43,14 +27,14 @@
 
     <dependencies>
         <dependency>
-            <groupId>it.at7.gemini</groupId>
+            <groupId>it.at7.gemini.micronaut</groupId>
             <artifactId>gemini-micronaut-core</artifactId>
-            <version>0.1</version>
+            <version>0.5.15</version>
         </dependency>
         <dependency>
             <groupId>com.google.firebase</groupId>
             <artifactId>firebase-admin</artifactId>
-            <version>7.1.0</version>
+            <version>8.0.0</version>
         </dependency>
 
 
@@ -80,15 +64,13 @@
             <artifactId>micronaut-test-junit5</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <!--
         <dependency>
-            <groupId>it.at7.gemini</groupId>
-            <artifactId>gemini-micronaut</artifactId>
-            <version>0.1</version>
+            <groupId>it.at7.gemini.micronaut</groupId>
+            <artifactId>gemini-micronaut-core</artifactId>
+            <version>0.5.15</version>
             <type>test-jar</type>
             <scope>test</scope>
-        </dependency> -->
+        </dependency>
 
     </dependencies>
     <build>
@@ -100,25 +82,11 @@
                 <configuration>
                     <!-- Uncomment to enable incremental compilation -->
                     <!-- <useIncrementalCompilation>false</useIncrementalCompilation> -->
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>io.micronaut</groupId>
-                            <artifactId>micronaut-inject-java</artifactId>
-                            <version>${micronaut.version}</version>
-                        </path>
-                        <path>
-                            <groupId>io.micronaut</groupId>
-                            <artifactId>micronaut-validation</artifactId>
-                            <version>${micronaut.version}</version>
-                        </path>
-                        <path>
-                            <groupId>io.micronaut</groupId>
-                            <artifactId>micronaut-graal</artifactId>
-                            <version>${micronaut.version}</version>
-                        </path>
+
+                    <annotationProcessorPaths combine.children="append">
                     </annotationProcessorPaths>
                     <compilerArgs>
-                      <arg>-Amicronaut.processing.group=it.at7.gemini</arg>
+                      <arg>-Amicronaut.processing.group=it.at7.gemini.micronaut</arg>
                       <arg>-Amicronaut.processing.module=gemini-micronaut-gcp</arg>
                     </compilerArgs>
                 </configuration>
@@ -128,19 +96,6 @@
                         <goals>
                             <goal>testCompile</goal>
                         </goals>
-                        <configuration>
-                            <annotationProcessorPaths>
-                                <path>
-                                    <groupId>io.micronaut</groupId>
-                                    <artifactId>micronaut-inject-java</artifactId>
-                                    <version>${micronaut.version}</version>
-                                </path>
-                                <path>
-                                    <groupId>io.micronaut</groupId>
-                                    <artifactId>micronaut-validation</artifactId>
-                                </path>
-                            </annotationProcessorPaths>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -160,93 +115,15 @@
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-            </plugin>
-
-            <!--<plugin>
-                <groupId>com.google.cloud.functions</groupId>
-                <artifactId>function-maven-plugin</artifactId>
-                <version>0.9.4</version>
-                <configuration>
-                    <functionTarget>io.micronaut.gcp.function.http.HttpFunction</functionTarget>
-                </configuration>
-            </plugin>-->
-
-        </plugins>
-    </build>
-
-
-
-          <!--
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <dependenciesToScan>
-                        <dependency>it.at7.gemini:gemini-micronaut</dependency>
+                        <dependency>it.at7.gemini.micronaut:gemini-micronaut-core</dependency>
                     </dependenciesToScan>
                 </configuration>
             </plugin>
-        </plugins>
-    </build>-->
 
-    <profiles>
-        <!--
-        <profile>
-            <id>gcp-function</id>
-            <dependencies>
-                <dependency>
-                    <groupId>io.micronaut.gcp</groupId>
-                    <artifactId>micronaut-gcp-function-http</artifactId>
-                    <scope>compile</scope>
-                </dependency>
-                <dependency>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-classic</artifactId>
-                    <scope>compile</scope>
-                </dependency>
-            </dependencies>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>com.google.cloud.functions</groupId>
-                        <artifactId>function-maven-plugin</artifactId>
-                        <version>0.9.4</version>
-                        <configuration>
-                            <name>testAPIFrontendBO</name>
-                            <functionTarget>io.micronaut.gcp.function.http.HttpFunction</functionTarget>
-                            <projectId>plg-chatbot</projectId>
-                            <runtime>java11</runtime>
-                            <triggerHttp>true</triggerHttp>
-                            <allowUnauthenticated>true</allowUnauthenticated>
-                            <environmentVariables>
-                                CONFIGURATION_BUCKET=appengine-dev-chatbot-config,CONFIGURATION_PATH=backoffice-tests/api-frontend-config/api-frontend.yaml
-                            </environmentVariables>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>standalone</id>
-            <dependencies>
-                <dependency>
-                    <groupId>io.micronaut</groupId>
-                    <artifactId>micronaut-http-server-netty</artifactId>
-                    <scope>compile</scope>
-                </dependency>
-                <dependency>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-classic</artifactId>
-                    <scope>compile</scope>
-                </dependency>
-            </dependencies>
-        </profile>-->
-    </profiles>
+        </plugins>
+    </build>
 
 </project>

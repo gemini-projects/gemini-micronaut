@@ -1,6 +1,7 @@
 package it.at7.gemini.micronaut.auth;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
+import io.micronaut.context.annotation.Requires;
 import io.micronaut.context.annotation.Value;
 import io.micronaut.core.util.StringUtils;
 import io.micronaut.http.HttpAttributes;
@@ -25,6 +26,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Singleton
+@Requires(property = "gemini.auth.enabled", value = "true", defaultValue = "true")
 public class GeminiPermissionSecurityRule implements SecurityRule {
     private static final Logger LOG = LoggerFactory.getLogger(GeminiPermissionSecurityRule.class);
 
@@ -57,7 +59,7 @@ public class GeminiPermissionSecurityRule implements SecurityRule {
             // access the path variables.
             Map<String, Object> variableValues = uriRouteMatch.get().getVariableValues();
             String entity = (String) variableValues.get("entity");
-            String ID = (String) variableValues.get("ID");
+            String ID = (String) variableValues.get("id");
             if (entity == null) {
                 return SecurityRuleResult.UNKNOWN;
             }
@@ -69,21 +71,35 @@ public class GeminiPermissionSecurityRule implements SecurityRule {
             if (claims == null)
                 return SecurityRuleResult.UNKNOWN;
 
-            Object issuer = getIssuer(claims);
-            if (issuer == null)
-                return SecurityRuleResult.UNKNOWN;
-
-            String account = getAccount(issuer, claims);
-            if (account == null)
-                return SecurityRuleResult.UNKNOWN;
+            List<String> profiles = null;
+            if (claims.get("username") != null) {
+                // try to get the profiles directly
+                profiles = (List<String>) claims.get("profiles");
+            }
 
             try {
-                EntityRecord userRec = getUserEntityRecord(account);
-                Object profilesObj = userRec.get("profiles");
-                if (profilesObj != null) {
-                    List<String> profiles = (List<String>) profilesObj;
+                if (profiles == null) {
+                    Object issuer = getIssuer(claims);
+                    if (issuer == null)
+                        return SecurityRuleResult.UNKNOWN;
+
+                    String account = getAccount(issuer, claims);
+                    if (account == null)
+                        return SecurityRuleResult.UNKNOWN;
+
+
+                    EntityRecord userRec = getUserEntityRecord(account);
+                    Object profilesObj = userRec.get("profiles");
+                    if (profilesObj != null) {
+                        profiles = (List<String>) profilesObj;
+                    }
+
+                }
+
+                if (profiles != null) {
                     for (String profile : profiles) {
                         EntityDataManager profileData = this.authDataManagerResolver.getProfileDataManager();
+
                         DataResult<EntityRecord> profileRecRes = profileData.getRecord(profile);
 
 
@@ -106,14 +122,10 @@ public class GeminiPermissionSecurityRule implements SecurityRule {
                     }
                 }
 
-
             } catch (FieldConversionException | EntityFieldNotFoundException | EntityRecordNotFoundException e) {
                 throw new RuntimeException("Unable to execute check", e);
             }
-            return SecurityRuleResult.UNKNOWN;
         }
-
-
         return SecurityRuleResult.UNKNOWN;
     }
 

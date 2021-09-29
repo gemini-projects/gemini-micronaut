@@ -16,9 +16,37 @@ entity:
     - name: profiles
       type: ARRAY
       array:
-        type: STRING
+        type: ENTITY_REF
+        entityRef:
+          entity: PROFILE
+---
+
+type: ENTITY
+entity:
+  name: NSBasicAuth
+  displayName: Namespace Basic Auth
+  lk: [namespace, user]
+  fields:
+    - name: namespace
+      type: ENTITY_REF
+      entityRef:
+        entity: NAMESPACE
+      required: true
+    - name: user
+      type: STRING
+      required: true
+    - name: password
+      type: STRING
+      # TODO password type a
+    - name: profiles
+      type: ARRAY
+      array:
+        type: ENTITY_REF
+        entityRef:
+          entity: PROFILE
 
 ---
+
 type: ENTITY
 entity:
   name: Profile

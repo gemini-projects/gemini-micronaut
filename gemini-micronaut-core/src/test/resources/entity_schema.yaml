@@ -48,6 +48,8 @@ entity:
       type: ANY
       any:
         typeField: anyFieldType
+    - name: filterString
+      type: STRING
 
 ---
 ### ENTITY: Multiple LK

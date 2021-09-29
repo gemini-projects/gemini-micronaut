@@ -4,10 +4,8 @@ import it.at7.gemini.micronaut.exception.FieldConversionException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.ZoneId;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class FieldConverter {
@@ -140,6 +138,10 @@ public class FieldConverter {
                 throw new FieldConversionException(field, value, e.getMessage());
             }
         }
+        if (value instanceof Date) {
+            Date dval = (Date) value;
+            return dval.toInstant().atZone(ZoneId.of("UTC")).toLocalDate();
+        }
         try {
             return LocalDate.parse(String.valueOf(value));
         } catch (RuntimeException re) {
@@ -237,9 +239,12 @@ public class FieldConverter {
         switch (field.getType()) {
             case STRING:
             case BOOL:
-            case ENUM: {
+            case ENUM:
+            case ENTITY_REF: {
                 return String.valueOf(value);
             }
+            case DATE:
+                return ((LocalDate) value).toString();
             case OBJECT: {
                 if (Map.class.isAssignableFrom(value.getClass())) {
                     Map<String, Object> mapValue = (Map<String, Object>) value;

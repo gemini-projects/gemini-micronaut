@@ -152,7 +152,7 @@ public class EntityRecord {
             return errors.isEmpty();
         }
 
-        public Map<String, Field.ValidationError> getErrors() {
+        public Map<String, Field.ValidationError>  getErrors() {
             return errors;
         }
     }

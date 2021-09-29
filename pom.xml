@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+
+    <groupId>it.at7.gemini.micronaut</groupId>
+    <artifactId>gemini-micronaut</artifactId>
+    <packaging>pom</packaging>
+    <version>0.5.15</version>
+
+    <parent>
+        <groupId>io.micronaut</groupId>
+        <artifactId>micronaut-parent</artifactId>
+        <version>2.5.13</version>
+    </parent>
+
+    <properties>
+        <maven.compiler.release>11</maven.compiler.release>
+        <release.version>11</release.version>
+        <jdk.version>1.11</jdk.version>
+        <maven.compiler.source>1.11</maven.compiler.source>
+        <maven.compiler.target>1.11</maven.compiler.target>
+        <micronaut.version>2.5.13</micronaut.version>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>jcenter.bintray.com</id>
+            <url>https://jcenter.bintray.com</url>
+        </repository>
+    </repositories>
+
+    <modules>
+        <module>gemini-micronaut-core</module>
+        <module>gemini-micronaut-gcp-firebase</module>
+        <module>gemini-micronaut-auth</module>
+        <module>gemini-micronaut-mongodb</module>
+        <module>gemini-micronaut-adminspa</module>
+    </modules>
+
+</project>

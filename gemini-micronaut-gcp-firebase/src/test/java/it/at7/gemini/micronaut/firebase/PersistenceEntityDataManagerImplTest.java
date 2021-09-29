@@ -1,4 +1,4 @@
-package it.at7.gemini.firebase;
+package it.at7.gemini.micronaut.firebase;
 
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import it.at7.gemini.micronaut.core.*;
@@ -16,7 +16,7 @@ import java.util.Map;
 
 @MicronautTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class PersistenceEntityDataManagerImplIT {
+class PersistenceEntityDataManagerImplTest {
 
     @Inject
     EntityManager entityManager;

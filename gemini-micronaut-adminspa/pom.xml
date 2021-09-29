@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>gemini-micronaut-auth</artifactId>
+    <artifactId>gemini-micronaut-adminspa</artifactId>
 
     <parent>
         <groupId>it.at7.gemini.micronaut</groupId>
@@ -18,16 +17,6 @@
             <groupId>it.at7.gemini.micronaut</groupId>
             <artifactId>gemini-micronaut-core</artifactId>
             <version>0.5.15</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.micronaut.security</groupId>
-            <artifactId>micronaut-security-oauth2</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.micronaut.security</groupId>
-            <artifactId>micronaut-security-jwt</artifactId>
         </dependency>
     </dependencies>
 
@@ -45,7 +34,7 @@
                     </annotationProcessorPaths>
                     <compilerArgs>
                         <arg>-Amicronaut.processing.group=it.at7.gemini.micronaut</arg>
-                        <arg>-Amicronaut.processing.module=gemini-micronaut-auth</arg>
+                        <arg>-Amicronaut.processing.module=gemini-micronaut-adminspa</arg>
                     </compilerArgs>
                 </configuration>
             </plugin>

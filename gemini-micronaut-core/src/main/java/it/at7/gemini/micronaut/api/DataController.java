@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.util.List;
 import java.util.Map;
 
 @Controller("/data/{entity}")
@@ -42,27 +43,49 @@ public class DataController {
     @Post
     HttpResponse<GeminiHttpResponse> post(@PathVariable("entity") String entityName,
                                           @Body DataRequest body,
-                                          HttpRequest<Map<String, Object>> httpRequest) throws EntityNotFoundException, FieldConversionException, DuplicateLkRecordException, EntityRecordValidationException, EntitySingleRecordException {
+                                          HttpRequest httpRequest) throws EntityNotFoundException, FieldConversionException, DuplicateLkRecordException, EntityRecordValidationException, EntitySingleRecordException, EntityRecordListValidationException {
         RequestUtils.crateAndSetTimeLogger(logger, httpRequest, "POST-ENTITY", entityName);
         Entity entity = this.entityManager.get(entityName);
         if (entity.isSingleRecord())
             throw new EntitySingleRecordException(entity, String.format("POST method not allowed for entity %s", entityName));
         EntityDataManager entityDataManager = this.entityManager.getDataManager(entityName);
-        Map<String, Object> data = RequestUtils.getRequestData(body);
-        DataResult<EntityRecord> record = entityDataManager.add(data);
-        return RequestUtils.readyResponse(record, httpRequest);
+
+        if (RequestUtils.isDataMap(body)) {
+            Map<String, Object> data = RequestUtils.getRequestDataMap(body);
+            DataResult<EntityRecord> record = entityDataManager.add(data);
+            return RequestUtils.readyResponse(record, httpRequest);
+        }
+        List<Map<String, Object>> dataList = RequestUtils.getRequestDataList(body);
+        DataListResult<EntityRecord> results = entityDataManager.addAll(dataList);
+        return RequestUtils.readyResponse(results, httpRequest);
+
     }
 
     @Put("/{+id}")
     HttpResponse<GeminiHttpResponse> putById(@PathVariable("entity") String entityName,
                                              @PathVariable("id") String id,
                                              @Body DataRequest body,
-                                             HttpRequest httpRequest) throws EntityNotFoundException, EntityRecordNotFoundException, FieldConversionException, EntityFieldNotFoundException {
+                                             HttpRequest httpRequest) throws EntityNotFoundException, FieldConversionException, EntityFieldNotFoundException, EntityRecordValidationException {
         RequestUtils.crateAndSetTimeLogger(logger, httpRequest, "PUT-ENTITY-BYID", entityName + " " + id);
 
         EntityDataManager entityDataManager = this.entityManager.getDataManager(entityName);
-        Map<String, Object> data = RequestUtils.getRequestData(body);
-        DataResult<EntityRecord> record = entityDataManager.fullUpdate(id, data);
+        Map<String, Object> data = RequestUtils.getRequestDataMap(body);
+        DataResult<EntityRecord> record = null;
+        try {
+            record = entityDataManager.fullUpdate(id, data);
+        } catch (EntityRecordNotFoundException e) {
+            try {
+                EntityRecord newRec = EntityRecord.fromDataMap(entityDataManager.getEntity(), data);
+                if(!id.equals(newRec.getLkString()))
+                    throw new RuntimeException("Lk is not as fields"); // TODO
+
+                record = entityDataManager.add(newRec);
+            } catch (DuplicateLkRecordException | EntitySingleRecordException ex) {
+                // it should not happen
+               throw new RuntimeException(ex);
+            }
+        }
+
         return RequestUtils.readyResponse(record, httpRequest);
     }
 
@@ -74,7 +97,7 @@ public class DataController {
         RequestUtils.crateAndSetTimeLogger(logger, httpRequest, "PATCH-ENTITY-BYID", entityName + " " + id);
         EntityDataManager entityDataManager = this.entityManager.getDataManager(entityName);
 
-        Map<String, Object> data = RequestUtils.getRequestData(body);
+        Map<String, Object> data = RequestUtils.getRequestDataMap(body);
         DataResult<EntityRecord> record = entityDataManager.partialUpdate(id, data);
         return RequestUtils.readyResponse(record, httpRequest);
     }

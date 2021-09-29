@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 import java.util.Map;
+import java.util.UUID;
 
 import static java.util.Map.entry;
 
@@ -28,7 +29,7 @@ class EntityManagerImplGeohashTest {
 
         EntityDataManager eghfManager = entityManager.getDataManager("ENTITY_WITH_GEOHASH");
         Map<String, Object> newRecFields = Map.ofEntries(
-                entry("id", "lk_g1"),
+                entry("id", "lk_g1"+ UUID.randomUUID().toString()),
                 entry("location", Map.of(
                         "lat", 43.7085300,
                         "lng", 10.4036000,

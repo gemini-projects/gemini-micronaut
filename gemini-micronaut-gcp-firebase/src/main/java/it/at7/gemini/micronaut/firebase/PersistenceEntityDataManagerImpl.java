@@ -1,4 +1,4 @@
-package it.at7.gemini.firebase;
+package it.at7.gemini.micronaut.firebase;
 
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -22,8 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-
-import static it.at7.gemini.firebase.FieldFilter.fieldFilter;
 
 @DefaultEntityDataManager
 public class PersistenceEntityDataManagerImpl implements PersistenceEntityDataManager {
@@ -65,8 +63,9 @@ public class PersistenceEntityDataManagerImpl implements PersistenceEntityDataMa
                 .setCredentials(GoogleCredentials.getApplicationDefault())
                 .setProjectId(projectId)
                 .build();
+        if (FirebaseApp.getApps().isEmpty())
+            FirebaseApp.initializeApp(options);
 
-        FirebaseApp.initializeApp(options);
         db = FirestoreClient.getFirestore();
     }
 
@@ -75,7 +74,7 @@ public class PersistenceEntityDataManagerImpl implements PersistenceEntityDataMa
         Query query = db.collection(getEntityCollectionName(entity));
         if (!dataListRequest.getFilters().isEmpty()) {
             for (DataListRequest.Filter filter : dataListRequest.getFilters()) {
-                query = fieldFilter(query, entity, filter);
+                query = FieldFilter.fieldFilter(query, entity, filter);
             }
         }
         ApiFuture<QuerySnapshot> future = query.get();
@@ -124,7 +123,6 @@ public class PersistenceEntityDataManagerImpl implements PersistenceEntityDataMa
 
     @Override
     public DataResult<EntityRecord> add(EntityRecord entityRecord) throws FieldConversionException, DuplicateLkRecordException {
-        Map<String, Object> docData = entityRecord.getData();
         try {
             String lkString = entityRecord.getLkString();
             DocumentReference document = db
@@ -135,8 +133,11 @@ public class PersistenceEntityDataManagerImpl implements PersistenceEntityDataMa
             if (documentSnapshot.exists()) {
                 throw new DuplicateLkRecordException(entityRecord.getEntity(), lkString);
             }
+
+            Map<String, Object> docData = entityRecord.getData();
+            Map<String, Object> convertedData = DataConverter.toDataStoreMap(entityRecord.getEntity(), docData);
             ApiFuture<WriteResult> newRec = document
-                    .set(docData);
+                    .set(convertedData);
             WriteResult writeResult = newRec.get();
             EntityRecord per = PersistedEntityRecord.from(entityRecord);
             return DataResult.from(per).setLastUpdate(writeResult.getUpdateTime().toDate().getTime());
@@ -146,8 +147,12 @@ public class PersistenceEntityDataManagerImpl implements PersistenceEntityDataMa
     }
 
     @Override
+    public DataListResult<EntityRecord> addAll(Entity entity, List<EntityRecord> entityRecordList) throws FieldConversionException {
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    @Override
     public DataResult<EntityRecord> update(EntityRecord entityRecord) throws FieldConversionException {
-        Map<String, Object> docData = entityRecord.getData();
         try {
             // check if the key was changed
             boolean needNewKey = false;
@@ -165,11 +170,14 @@ public class PersistenceEntityDataManagerImpl implements PersistenceEntityDataMa
                 delete(entityRecord.getEntity(), toFindLk);
             }
 
+            Map<String, Object> docData = entityRecord.getData();
+            Map<String, Object> convertedData = DataConverter.toDataStoreMap(entityRecord.getEntity(), docData);
+
             // add new record to the store
             ApiFuture<WriteResult> newRec = db
                     .collection(getEntityCollectionName(entityRecord.getEntity()))
                     .document(entityRecord.getLkString())
-                    .set(docData);
+                    .set(convertedData);
             WriteResult writeResult = newRec.get();
             EntityRecord per = PersistedEntityRecord.from(entityRecord);
             return DataResult.from(per).setLastUpdate(writeResult.getUpdateTime().toDate().getTime());
