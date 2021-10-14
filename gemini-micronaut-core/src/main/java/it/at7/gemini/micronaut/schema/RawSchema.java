@@ -8,7 +8,6 @@ import java.util.List;
         value = {
                 RawSchema.class,
                 RawSchema.Type.class,
-                RawSchema.GetStrategy.class,
                 RawSchema.Entity.class,
                 RawSchema.Entity.Tree.class,
                 RawSchema.Entity.Field.class,
@@ -43,7 +42,6 @@ public class RawSchema {
         public boolean singleRecord;
         public String lkValue;
         public Tree tree;
-        public List<GetStrategy> getStrategies;
         public List<String> refDisplayFields;
         public String refDisplaySeparator;
 
@@ -128,10 +126,5 @@ public class RawSchema {
 
     public enum Type {
         ENTITY
-    }
-
-
-    public enum GetStrategy {
-        ALL
     }
 }

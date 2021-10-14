@@ -30,22 +30,11 @@ public class EntityManagerImpl implements EntityManager {
     @Value("${gemini.entity.schema.resources:entity_schema.yaml}")
     List<String> entityResources;
 
-    @Value("${gemini.entity.schema.defaultGetStrategies:ALL}")
-    List<String> ENTITY_DEFAULT_GET_STRATEGIES;
-
-    private static RawSchema schemaDefaults(RawSchema rawSchema, List<String> ENTITY_DEFAULT_GET_STRATEGIES) {
-        if (rawSchema.entity.getStrategies == null || rawSchema.entity.getStrategies.isEmpty()) {
-            rawSchema.entity.getStrategies = ENTITY_DEFAULT_GET_STRATEGIES.stream().map(RawSchema.GetStrategy::valueOf).collect(Collectors.toList());
-        }
-        return rawSchema;
-    }
-
     @PostConstruct
     void init(ApplicationContext applicationContext, SchemaLoader schemaLoader) throws IOException {
         this.loadedSchema = schemaLoader.load(entityResources);
         Collection<RawSchema> rawSchemas = loadedSchema.getRawSchemas();
         this.rawSchemaEntities = rawSchemas.stream().filter(s -> s.type.equals(RawSchema.Type.ENTITY))
-                .map(s -> schemaDefaults(s, ENTITY_DEFAULT_GET_STRATEGIES))
                 .collect(Collectors.toMap(s -> Entity.normalizeName(s.entity.name), s -> s.entity));
         this.entityMap = Map.copyOf(buildEntities(rawSchemas));
         this.defaultPersistenceManager = this.getCommonPersistenceManager(applicationContext);
@@ -73,7 +62,7 @@ public class EntityManagerImpl implements EntityManager {
         RawSchema.Entity entity = this.rawSchemaEntities.get(Entity.normalizeName(entityName));
         if (entity == null)
             throw new EntityNotFoundException(entityName);
-        return new EntitySchema(this.loadedSchema.getSchemaHash(), entity);
+        return new EntitySchema(this.loadedSchema.getSchemaHash(), entity);         // check if it is right to have a unique schema hash...
     }
 
     @Override
@@ -85,11 +74,16 @@ public class EntityManagerImpl implements EntityManager {
     public Map<String, EntityTimes> getEntitiesTimes() {
         Map<String, EntityTimes> entityTimes = new HashMap<>();
         for (PersistenceEntityDataManager customPersistenceManager : customPersistenceManagers) {
-            entityTimes.putAll(customPersistenceManager.times());
+            Map<String, EntityTimes> times = customPersistenceManager.times();
+            if (times != null)
+                entityTimes.putAll(times);
         }
         Set<String> computed = entityTimes.keySet();
-        if (!computed.equals(this.entityMap.keySet()))
-            entityTimes.putAll(defaultPersistenceManager.times());
+        if (!computed.equals(this.entityMap.keySet())) {
+            Map<String, EntityTimes> times = defaultPersistenceManager.times();
+            if (times != null)
+                entityTimes.putAll(times);
+        }
         return entityTimes;
     }
 

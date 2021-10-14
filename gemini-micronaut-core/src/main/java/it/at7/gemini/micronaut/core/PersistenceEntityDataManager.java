@@ -5,6 +5,7 @@ import it.at7.gemini.micronaut.exception.EntityFieldNotFoundException;
 import it.at7.gemini.micronaut.exception.EntityRecordNotFoundException;
 import it.at7.gemini.micronaut.exception.FieldConversionException;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
@@ -21,5 +22,5 @@ public interface PersistenceEntityDataManager {
 
     DataResult<EntityRecord> delete(EntityRecord entityRecord) throws FieldConversionException;
 
-    Map<String, EntityTimes> times();
+    @Nullable  Map<String, EntityTimes> times();
 }
