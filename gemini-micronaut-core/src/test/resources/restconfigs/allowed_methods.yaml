@@ -1,0 +1,7 @@
+# REST RESOURCES CONFIGURATION DEFINITION
+
+type: MULTIPLE_ENTITIES
+entities: [basetypes]
+config:
+  allowedMethods: []
+  getListStrategy: ALL

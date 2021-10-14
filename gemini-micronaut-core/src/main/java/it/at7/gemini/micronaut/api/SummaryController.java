@@ -24,6 +24,9 @@ public class SummaryController {
     @Inject
     EntityManager entityManager;
 
+    @Inject
+    RestEntityManager restEntityManager;
+
     @Get
     HttpResponse<GeminiHttpResponse> getList(HttpRequest httpRequest) throws EntityNotFoundException, FieldConversionException {
         RequestUtils.crateAndSetTimeLogger(logger, httpRequest, "SUMMARY", "");
@@ -41,13 +44,16 @@ public class SummaryController {
             return entitySummary;
         }));
 
-
         SchemaSummary schemaSummary = new SchemaSummary();
         schemaSummary.hash = entityManager.getLoadedSchema().getSchemaHash();
+
+        RestConfigSummary restConfigSummary = new RestConfigSummary();
+        restConfigSummary.hash = restEntityManager.getConfigHash();
 
         SummaryData summaryData = new SummaryData();
         summaryData.schema = schemaSummary;
         summaryData.entities = entities;
+        summaryData.restConfig = restConfigSummary;
 
         return RequestUtils.readyResponse(summaryData, httpRequest);
     }
@@ -57,10 +63,16 @@ public class SummaryController {
     public class SummaryData {
         public SchemaSummary schema;
         public Map<String, EntitySummary> entities;
+        public RestConfigSummary restConfig;
     }
 
     @Introspected
     public class SchemaSummary {
+        public String hash;
+    }
+
+    @Introspected
+    public class RestConfigSummary {
         public String hash;
     }
 

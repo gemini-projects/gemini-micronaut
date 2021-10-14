@@ -48,7 +48,7 @@ public class GeminiPermissionSecurityRule implements SecurityRule {
     public SecurityRuleResult check(HttpRequest<?> request, @Nullable RouteMatch<?> routeMatch, @Nullable Map<String, Object> claims) {
         final HttpMethod httpMethod = request.getMethod();
 
-        if (request.getPath().equals("/schema"))
+        if (request.getPath().equals("/entity"))
             return SecurityRuleResult.UNKNOWN;
 
         Optional<UriRouteMatch> uriRouteMatch = request

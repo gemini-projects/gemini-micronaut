@@ -4,19 +4,19 @@ import io.micronaut.core.annotation.Introspected;
 
 @Introspected
 public class EntitySchema {
-    private String schemaHash;
-    private RawSchema.Entity entity;
+    private final RawSchema.Entity value;
+    private String hash;
 
     public EntitySchema(String schemaHash, RawSchema.Entity entity) {
-        this.schemaHash = schemaHash;
-        this.entity = entity;
+        this.hash = schemaHash;
+        this.value = entity;
     }
 
-    public String getSchemaHash() {
-        return schemaHash;
+    public RawSchema.Entity getValue() {
+        return value;
     }
 
-    public RawSchema.Entity getEntity() {
-        return entity;
+    public String getHash() {
+        return hash;
     }
 }

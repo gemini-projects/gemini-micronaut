@@ -16,31 +16,38 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-@Controller("/schema")
-public class SchemaController {
+@Controller("/entity")
+public class EntityController {
 
-    private static final Logger logger = LoggerFactory.getLogger(SchemaController.class);
+    private static final Logger logger = LoggerFactory.getLogger(EntityController.class);
 
     @Inject
     EntityManager entityManager;
 
+    @Inject
+    RestEntityManager restEntityManager;
+
     @Get
     HttpResponse<GeminiHttpResponse> getList(HttpRequest httpRequest) throws EntityNotFoundException, FieldConversionException {
-        RequestUtils.crateAndSetTimeLogger(logger, httpRequest, "GET-SCHEMAS", "");
-        List<RawSchema.Entity> entities = new ArrayList<>();
+        RequestUtils.crateAndSetTimeLogger(logger, httpRequest, "GET-ENTITIES", "");
+       Map<String, Object> results = new HashMap<>();
         for (Entity e : this.entityManager.getEntities()) {
             EntitySchema entitySchema = this.entityManager.getEntitySchema(e.getName());
-            entities.add(entitySchema.getEntity());
+            EntityRestConfig restConfiguration = restEntityManager.getRestConfiguration(e.getName());
+            results.put(e.getName(), Map.of("schema", entitySchema, "restConfig", restConfiguration));
         }
-        return RequestUtils.readyResponse(entities, httpRequest);
+        return RequestUtils.readyResponse(results, httpRequest);
     }
 
     @Get("/{entity}")
     HttpResponse<GeminiHttpResponse> get(@PathVariable("entity") String entityName, HttpRequest httpRequest) throws EntityNotFoundException, FieldConversionException {
-        RequestUtils.crateAndSetTimeLogger(logger, httpRequest, "GET-SCHEMA", entityName);
+        RequestUtils.crateAndSetTimeLogger(logger, httpRequest, "GET-ENTITY", entityName);
         EntitySchema entitySchema = this.entityManager.getEntitySchema(entityName);
-        return RequestUtils.readyResponse(entitySchema, httpRequest);
+        EntityRestConfig restConfiguration = restEntityManager.getRestConfiguration(entityName);
+        return RequestUtils.readyResponse(Map.of("schema", entitySchema, "restConfig", restConfiguration), httpRequest);
     }
 }
