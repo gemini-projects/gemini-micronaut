@@ -19,6 +19,8 @@ entity:
       type: DOUBLE
     - name: dateField
       type: DATE
+    - name: dateTimeField
+      type: DATE_TIME
     - name: objectField
       type: OBJECT
       object:

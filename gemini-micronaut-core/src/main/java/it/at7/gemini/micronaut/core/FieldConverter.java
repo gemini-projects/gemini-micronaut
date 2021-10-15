@@ -3,8 +3,9 @@ package it.at7.gemini.micronaut.core;
 import it.at7.gemini.micronaut.exception.FieldConversionException;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -38,6 +39,8 @@ public class FieldConverter {
                 return b64Image(field, value);
             case DATE:
                 return dateValue(field, value);
+            case DATE_TIME:
+                return dateTimeValue(field, value);
             case ENTITY_REF:
                 return entityRefValue(field, value);
             case GEOHASH_LOCATION:
@@ -148,6 +151,25 @@ public class FieldConverter {
             throw new FieldConversionException(field, value, re.getMessage());
         }
 
+    }
+
+    private static Object dateTimeValue(Field field, Object value) throws FieldConversionException {
+        if (value instanceof LocalDateTime)
+            return value;
+        if (value instanceof Date) {
+            Date dval = (Date) value;
+            return dval.toInstant().atZone(ZoneId.of("UTC")).toLocalDateTime();
+        }
+        try {
+            return LocalDateTime.parse(String.valueOf(value));
+        } catch (DateTimeParseException exp) {
+            try {
+                ZonedDateTime zonedDateTime = ZonedDateTime.parse(String.valueOf(value), DateTimeFormatter.ISO_DATE_TIME);
+                return LocalDateTime.ofInstant(zonedDateTime.toInstant(), ZoneOffset.UTC);
+            } catch (RuntimeException re) {
+                throw new FieldConversionException(field, value, re.getMessage());
+            }
+        }
     }
 
     private static Object arrayValue(Field field, Object value) throws FieldConversionException {
