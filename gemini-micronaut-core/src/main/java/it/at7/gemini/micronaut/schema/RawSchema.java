@@ -61,7 +61,7 @@ public class RawSchema {
 
 
             public enum Type {
-                STRING, INTEGER, DECIMAL, DOUBLE, BOOL, DATE, OBJECT, DICTIONARY,
+                STRING, INTEGER, DECIMAL, DOUBLE, BOOL, DATE, DATE_TIME, OBJECT, DICTIONARY,
                 ENUM, ARRAY, SELECT, B64_IMAGE, ANY, ENTITY_REF, GEOHASH_LOCATION
             }
 

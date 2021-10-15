@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
@@ -35,6 +37,7 @@ class EntityManagerImplBaseTypesTest {
                 entry("intField", 42),
                 entry("doubleField", 42.4242424242424242),
                 entry("dateField", LocalDate.parse("2021-02-28")),
+                entry("dateTimeField", LocalDateTime.parse("2011-12-03T10:15:30")),
                 entry("objectField", Map.of("st", "inner string")),
                 entry("dictField", Map.of("dictkey1", Map.of("st", "dictValueSt"))),
                 entry("selectField", "S1"),
