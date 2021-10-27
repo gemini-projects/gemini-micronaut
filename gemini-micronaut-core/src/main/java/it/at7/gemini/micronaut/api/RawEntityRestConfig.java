@@ -23,11 +23,12 @@ public class RawEntityRestConfig {
     public static class Config {
         public List<AllowedMethod> allowedMethods;
         public GetListStrategy getListStrategy;
+        public Integer defaultLimit;
     }
 
 
     public enum GetListStrategy {
-        ALL, PAGINATION
+        ALL, START_LIMIT
     }
 
     public enum Type {
