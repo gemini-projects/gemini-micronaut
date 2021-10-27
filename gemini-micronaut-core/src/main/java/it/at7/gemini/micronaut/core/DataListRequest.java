@@ -11,11 +11,13 @@ import java.util.Map;
 public class DataListRequest {
     private final List<Filter> filters;
     private final List<Order> orders;
+    private final int start;
     private final int limit;
 
-    public DataListRequest(List<Filter> filters, List<Order> orders, int limit) {
+    public DataListRequest(List<Filter> filters, List<Order> orders, int start, int limit) {
         this.filters = filters == null ? List.of() : Collections.unmodifiableList(filters);
         this.orders = orders == null ? List.of() : Collections.unmodifiableList(orders);
+        this.start = start;
         this.limit = limit;
     }
 
@@ -25,6 +27,10 @@ public class DataListRequest {
 
     public List<Order> getOrders() {
         return orders;
+    }
+
+    public int getStart() {
+        return start;
     }
 
     public int getLimit() {
@@ -39,6 +45,13 @@ public class DataListRequest {
             List<String> value = param.getValue();
             String field = key.endsWith("[]") ? key.substring(0, key.length() - 2) : key; // for multi value parameters
             //if (!field.startsWith("_")) {
+
+            if (key.equals("start")) {
+                String s = value.get(0);
+                int start = Integer.parseInt(s);
+                builder.addStart(start);
+                continue;
+            }
 
             if (key.equals("limit")) {
                 String s = value.get(0);
@@ -67,8 +80,6 @@ public class DataListRequest {
                 builder.addFilter(field, ope_type, sval);
                 continue;
             }
-            //}
-            // TODO handle pagination and sorting
         }
 
         return builder.build();
@@ -82,6 +93,7 @@ public class DataListRequest {
         private List<Filter> filters = new ArrayList<>();
         private int limit = 0;
         private List<Order> orders = new ArrayList<>();
+        private int start = 0;
 
         private Builder() {
         }
@@ -89,6 +101,10 @@ public class DataListRequest {
         public Builder addFilter(String field, OPE_TYPE ope_type, String sval) {
             filters.add(Filter.of(field, ope_type, sval));
             return this;
+        }
+
+        public void addStart(int start) {
+            this.start = start;
         }
 
         public void addLimit(int limit) {
@@ -100,7 +116,7 @@ public class DataListRequest {
         }
 
         public DataListRequest build() {
-            return new DataListRequest(filters, orders, limit);
+            return new DataListRequest(filters, orders, start, limit);
         }
     }
 

@@ -6,7 +6,6 @@ import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Context;
 import io.micronaut.context.annotation.Value;
 import it.at7.gemini.micronaut.core.CheckArgument;
-import it.at7.gemini.micronaut.core.DataListRequest;
 import it.at7.gemini.micronaut.core.Entity;
 import it.at7.gemini.micronaut.core.EntityManager;
 
@@ -31,6 +30,9 @@ public class RestEntityManagerImpl implements RestEntityManager {
 
     @Value("${gemini.entity.restConfig.defaultAllowedMethods:GET_LIST,GET_BYID,NEW,UPDATE,DELETE}")
     List<RawEntityRestConfig.AllowedMethod> defaultAllowedMethods;
+
+    @Value("${gemini.entity.restConfig.defaultLimit:100}")
+    Integer defaultLimit;
 
     @Inject
     EntityManager entityManager;
@@ -69,6 +71,7 @@ public class RestEntityManagerImpl implements RestEntityManager {
             if (config != null) {
                 defaultConfig.allowedMethods = config.allowedMethods == null ? defaultConfig.allowedMethods : config.allowedMethods;
                 defaultConfig.getListStrategy = config.getListStrategy == null ? defaultConfig.getListStrategy : config.getListStrategy;
+                defaultConfig.defaultLimit = config.defaultLimit == null ? defaultConfig.defaultLimit : config.defaultLimit;
                 return new EntityRestConfig(configHash, defaultConfig);
             }
         }
