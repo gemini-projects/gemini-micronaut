@@ -8,6 +8,9 @@ import java.util.List;
         value = {
                 RawEntityRestConfig.class,
                 RawEntityRestConfig.Type.class,
+                RawEntityRestConfig.Config.class,
+                RawEntityRestConfig.AllowedMethod.class,
+                RawEntityRestConfig.GetListStrategy.class
         },
         accessType = {TypeHint.AccessType.ALL_PUBLIC}
 )
@@ -22,8 +25,12 @@ public class RawEntityRestConfig {
 
     public static class Config {
         public List<AllowedMethod> allowedMethods;
+        public List<String> allowedOrderingFields;
         public GetListStrategy getListStrategy;
         public Integer defaultLimit;
+        public Integer maxWindow; // max start + limit window allowed by the API
+        public List<String> defaultOrder;
+        // TODO quickFilterAPI
     }
 
 

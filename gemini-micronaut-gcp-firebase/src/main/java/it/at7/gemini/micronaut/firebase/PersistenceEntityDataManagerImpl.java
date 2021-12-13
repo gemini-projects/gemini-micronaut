@@ -70,6 +70,12 @@ public class PersistenceEntityDataManagerImpl implements PersistenceEntityDataMa
     }
 
     @Override
+    public DataCountResult countRecords(Entity entity, DataListRequest dataListRequest) {
+        // TODO ;
+        throw new RuntimeException("Unsupported operation");
+    }
+
+    @Override
     public DataListResult<EntityRecord> getRecords(Entity entity, DataListRequest dataListRequest) throws FieldConversionException, EntityFieldNotFoundException {
         Query query = db.collection(getEntityCollectionName(entity));
         if (!dataListRequest.getFilters().isEmpty()) {

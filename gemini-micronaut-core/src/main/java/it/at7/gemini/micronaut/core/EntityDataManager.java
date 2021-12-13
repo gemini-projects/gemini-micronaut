@@ -10,6 +10,8 @@ public interface EntityDataManager {
 
     Entity getEntity();
 
+    DataCountResult countRecords(DataListRequest dataListRequest) throws EntityFieldNotFoundException;
+
     DataListResult<EntityRecord> getRecords(DataListRequest dataListRequest) throws FieldConversionException, EntityFieldNotFoundException;
 
     default DataResult<EntityRecord> getSingleRecord() throws EntitySingleRecordException, EntityRecordNotFoundException, FieldConversionException {

@@ -3,22 +3,24 @@ package it.at7.gemini.micronaut.core;
 import io.micronaut.http.HttpParameters;
 import io.micronaut.http.HttpRequest;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import javax.swing.text.html.Option;
+import java.util.*;
 
 public class DataListRequest {
     private final List<Filter> filters;
     private final List<Order> orders;
     private final int start;
     private final int limit;
+    private final String quickFilter;
+    private final List<String> quickFilterFields;
 
-    public DataListRequest(List<Filter> filters, List<Order> orders, int start, int limit) {
+    public DataListRequest(List<Filter> filters, List<Order> orders, int start, int limit, String quickFilter, List<String> quickFilterFields) {
         this.filters = filters == null ? List.of() : Collections.unmodifiableList(filters);
         this.orders = orders == null ? List.of() : Collections.unmodifiableList(orders);
         this.start = start;
         this.limit = limit;
+        this.quickFilter = quickFilter;
+        this.quickFilterFields = quickFilterFields;
     }
 
     public List<Filter> getFilters() {
@@ -37,30 +39,77 @@ public class DataListRequest {
         return limit;
     }
 
+    public Optional<String> getQuickFilter() {
+        return Optional.ofNullable(quickFilter);
+    }
+
+    public List<String> getQuickFilterFields() {
+        return quickFilterFields;
+    }
+
+    public static ExtractedOperation extractFieldAndOperator(String key) {
+        String field = key;
+        OPE_TYPE ope_type = OPE_TYPE.EQUALS;
+        if (key.endsWith("]")) {
+            StringBuilder ope = new StringBuilder();
+            int i;
+            for (i = key.length() - 2; i >= 0; i--) {
+                char c = key.charAt(i);
+                if(c == '[' ) {
+                    break;
+                }
+                ope.append(c);
+            }
+            field = key.substring(0, i);
+            String opeSt = ope.reverse().toString();
+            if(!opeSt.isEmpty()) {
+                // TODO maybe arrays ?
+                try {
+                    ope_type = OPE_TYPE.valueOf(opeSt.toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    // do nothing, ignore the filter if wrong
+                }
+            }
+        }
+        return ExtractedOperation.from(field, ope_type);
+    }
+
     public static DataListRequest from(HttpRequest httpRequest) {
         HttpParameters parameters = httpRequest.getParameters();
         Builder builder = new Builder();
         for (Map.Entry<String, List<String>> param : parameters.asMap().entrySet()) {
             String key = param.getKey();
             List<String> value = param.getValue();
-            String field = key.endsWith("[]") ? key.substring(0, key.length() - 2) : key; // for multi value parameters
-            //if (!field.startsWith("_")) {
+            ExtractedOperation extractedOperation = extractFieldAndOperator(key);
+            String field = extractedOperation.field;
+            OPE_TYPE ope_type = extractedOperation.ope_type;
 
-            if (key.equals("start")) {
+            if (field.equals("quickFilter")) {
+                String filter = value.get(0);
+                builder.addQuickFilter(filter);
+                continue;
+            }
+
+            if (field.equals("quickFilterFields")) {
+                builder.addQuickFilterField(value.get(0));
+                continue;
+            }
+
+            if (field.equals("start")) {
                 String s = value.get(0);
                 int start = Integer.parseInt(s);
                 builder.addStart(start);
                 continue;
             }
 
-            if (key.equals("limit")) {
+            if (field.equals("limit")) {
                 String s = value.get(0);
                 int limit = Integer.parseInt(s);
                 builder.addLimit(limit);
                 continue;
             }
 
-            if (key.equals("orderBy")) {
+            if (field.equals("orderBy")) {
                 String sortField = value.get(0);
                 ORDER_TYPE order = ORDER_TYPE.ASC;
 
@@ -75,10 +124,7 @@ public class DataListRequest {
             }
 
             for (String sval : value) {
-                OPE_TYPE ope_type = OPE_TYPE.EQUALS;
-                // TODO check sval operators
                 builder.addFilter(field, ope_type, sval);
-                continue;
             }
         }
 
@@ -94,6 +140,8 @@ public class DataListRequest {
         private int limit = 0;
         private List<Order> orders = new ArrayList<>();
         private int start = 0;
+        private String quickFilter = null;
+        private List<String> quickFilterFields = new ArrayList<>();
 
         private Builder() {
         }
@@ -115,8 +163,16 @@ public class DataListRequest {
             orders.add(Order.of(sortField, order));
         }
 
+        public void addQuickFilter(String filter) {
+            this.quickFilter = filter;
+        }
+
+        public void addQuickFilterField(String s) {
+            this.quickFilterFields.add(s);
+        }
+
         public DataListRequest build() {
-            return new DataListRequest(filters, orders, start, limit);
+            return new DataListRequest(filters, orders, start, limit, quickFilter, quickFilterFields);
         }
     }
 
@@ -171,9 +227,23 @@ public class DataListRequest {
 
     }
 
+    private static class ExtractedOperation {
+        public String field;
+        public OPE_TYPE ope_type;
+
+        public static ExtractedOperation from(String field, OPE_TYPE ope_type) {
+            ExtractedOperation extractedOperation = new ExtractedOperation();
+            extractedOperation.field = field;
+            extractedOperation.ope_type = ope_type;
+            return extractedOperation;
+        }
+    }
+
     public enum OPE_TYPE {
         EQUALS,
-        CONTAINS
+        CONTAINS,
+        GTE,
+        LTE
     }
 
     public enum ORDER_TYPE {

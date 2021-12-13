@@ -81,4 +81,14 @@ entity:
                     type: ENUM
                     enums: [LIST, NEW, EDIT, GET, DELETE]
 
+          - name: routePermissions
+            type: DICTIONARY
+            dict:
+              fields:
+                - name: permissions
+                  type: ARRAY
+                  array:
+                    type: ENUM
+                    enums: [POST, PUT, GET, PATCH]
+
 

@@ -29,7 +29,7 @@ public class SummaryController {
 
     @Get
     HttpResponse<GeminiHttpResponse> getList(HttpRequest httpRequest) throws EntityNotFoundException, FieldConversionException {
-        RequestUtils.crateAndSetTimeLogger(logger, httpRequest, "SUMMARY", "");
+        RequestUtils.createAndSetTimeLogger(logger, httpRequest, "SUMMARY", "");
 
         Map<String, EntityTimes> times = this.entityManager.getEntitiesTimes();
         Map<String, EntitySummary> entities = times.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> {

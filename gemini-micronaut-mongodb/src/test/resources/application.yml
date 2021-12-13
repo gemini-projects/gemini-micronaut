@@ -1,1 +1,2 @@
 gemini.test-module: gemini-micronaut-mongodb
+gemini.auth.datamanager: custom
