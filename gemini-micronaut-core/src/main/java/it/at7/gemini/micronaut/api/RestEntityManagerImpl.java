@@ -72,6 +72,9 @@ public class RestEntityManagerImpl implements RestEntityManager {
                 defaultConfig.allowedMethods = config.allowedMethods == null ? defaultConfig.allowedMethods : config.allowedMethods;
                 defaultConfig.getListStrategy = config.getListStrategy == null ? defaultConfig.getListStrategy : config.getListStrategy;
                 defaultConfig.defaultLimit = config.defaultLimit == null ? defaultConfig.defaultLimit : config.defaultLimit;
+                defaultConfig.maxWindow = config.maxWindow == null ? defaultConfig.maxWindow : config.maxWindow;
+                defaultConfig.defaultOrder = config.defaultOrder;
+                defaultConfig.allowedOrderingFields = config.allowedOrderingFields;
                 return new EntityRestConfig(configHash, defaultConfig);
             }
         }

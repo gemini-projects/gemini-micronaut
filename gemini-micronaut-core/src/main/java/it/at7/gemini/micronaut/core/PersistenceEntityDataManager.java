@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Map;
 
 public interface PersistenceEntityDataManager {
+
+    DataCountResult countRecords(Entity entity, DataListRequest dataListRequest) throws EntityFieldNotFoundException;
+
     DataListResult<EntityRecord> getRecords(Entity entity, DataListRequest dataListRequest) throws EntityFieldNotFoundException, FieldConversionException;
 
     DataResult<EntityRecord> getRecord(Entity entity, String lk, DataRequest dataRequest) throws EntityRecordNotFoundException, FieldConversionException;
@@ -22,5 +25,6 @@ public interface PersistenceEntityDataManager {
 
     DataResult<EntityRecord> delete(EntityRecord entityRecord) throws FieldConversionException;
 
-    @Nullable  Map<String, EntityTimes> times();
+    @Nullable
+    Map<String, EntityTimes> times();
 }

@@ -55,77 +55,108 @@ public class GeminiPermissionSecurityRule implements SecurityRule {
                 .getAttributes()
                 .get(HttpAttributes.ROUTE_MATCH.toString(), UriRouteMatch.class);
 
+
+        String entity = request.getPath();
+        String ID = null;
         if (uriRouteMatch.isPresent()) {
             // access the path variables.
-            Map<String, Object> variableValues = uriRouteMatch.get().getVariableValues();
-            String entity = (String) variableValues.get("entity");
-            String ID = (String) variableValues.get("id");
-            if (entity == null) {
-                return SecurityRuleResult.UNKNOWN;
-            }
+            UriRouteMatch ruoteMatch = uriRouteMatch.get();
+            Map<String, Object> variableValues = ruoteMatch.getVariableValues();
+            if (variableValues.containsKey("entity"))
+                entity = (String) variableValues.get("entity");
+            if (variableValues.containsKey("id"))
+                ID = (String) variableValues.get("id");
+        }
+        if (entity == null) {
+            return SecurityRuleResult.UNKNOWN;
+        }
 
-            if (isPublic(entity, httpMethod, ID)) {
-                return SecurityRuleResult.ALLOWED;
-            }
+        if (isPublic(entity, httpMethod, ID)) {
+            return SecurityRuleResult.ALLOWED;
+        }
 
-            if (claims == null)
-                return SecurityRuleResult.UNKNOWN;
+        if (claims == null)
+            return SecurityRuleResult.UNKNOWN;
 
-            List<String> profiles = null;
-            if (claims.get("username") != null) {
-                // try to get the profiles directly
-                profiles = (List<String>) claims.get("profiles");
-            }
+        List<String> profiles = null;
+        if (claims.get("username") != null) {
+            // try to get the profiles directly
+            profiles = (List<String>) claims.get("profiles");
+        }
 
-            try {
-                if (profiles == null) {
-                    Object issuer = getIssuer(claims);
-                    if (issuer == null)
-                        return SecurityRuleResult.UNKNOWN;
+        try {
+            if (profiles == null) {
+                Object issuer = getIssuer(claims);
+                if (issuer == null)
+                    return SecurityRuleResult.UNKNOWN;
 
-                    String account = getAccount(issuer, claims);
-                    if (account == null)
-                        return SecurityRuleResult.UNKNOWN;
+                String account = getAccount(issuer, claims);
+                if (account == null)
+                    return SecurityRuleResult.UNKNOWN;
 
 
-                    EntityRecord userRec = getUserEntityRecord(account);
-                    Object profilesObj = userRec.get("profiles");
-                    if (profilesObj != null) {
-                        profiles = (List<String>) profilesObj;
-                    }
-
+                EntityRecord userRec = getUserEntityRecord(account);
+                Object profilesObj = userRec.get("profiles");
+                if (profilesObj != null) {
+                    profiles = (List<String>) profilesObj;
                 }
 
-                if (profiles != null) {
-                    for (String profile : profiles) {
-                        EntityDataManager profileData = this.authDataManagerResolver.getProfileDataManager();
+            }
 
-                        DataResult<EntityRecord> profileRecRes = profileData.getRecord(profile);
+            if (profiles != null) {
+                for (String profile : profiles) {
+                    EntityDataManager profileData = this.authDataManagerResolver.getProfileDataManager();
+
+                    DataResult<EntityRecord> profileRecRes = profileData.getRecord(profile);
 
 
-                        EntityRecord profileRec = profileRecRes.getData();
-                        Object permissions = profileRec.get("permissions");
-                        if (permissions != null) {
-                            Map<String, Object> namespacesPerms = (Map<String, Object>) permissions;
-                            Map<String, Object> namespacePerms = (Map<String, Object>) namespacesPerms.get(namespace);
-                            if (namespacePerms != null) {
-                                Map<String, Object> namespacePermissions = (Map<String, Object>) namespacePerms.get("namespacePermissions");
-                                if (namespacePermissions != null && namespacePermissions.containsKey("entity")) {
-                                    List<String> entityPerms = (List<String>) namespacePermissions.get("entity");
+                    EntityRecord profileRec = profileRecRes.getData();
+                    Object permissions = profileRec.get("permissions");
+                    if (permissions != null) {
+                        Map<String, Object> namespacesPerms = (Map<String, Object>) permissions;
+                        Map<String, Object> namespacePerms = (Map<String, Object>) namespacesPerms.get(namespace);
+                        if (namespacePerms != null) {
+                            boolean allow = false;
+                            Map<String, Object> namespacePermissions = (Map<String, Object>) namespacePerms.get("namespacePermissions");
+                            if (namespacePermissions != null && namespacePermissions.containsKey("entity")) {
+                                List<String> entityPerms = (List<String>) namespacePermissions.get("entity");
+                                String PERMISSION = getPermissionFromMethod(httpMethod, ID);
+                                if (entityPerms.contains(PERMISSION))
+                                    allow = true;
+                            }
+                            Map<String, Object> entityPermissions = (Map<String, Object>) namespacePerms.get("entityPermissions");
+                            if (!allow && entityPermissions != null) {
+                                Map<String, Object> entityPermission = (Map<String, Object>) entityPermissions.get(entity.toUpperCase());
+                                if (entityPermission != null) {
+                                    List<String> entityPerms = (List<String>) entityPermission.get("permissions");
                                     String PERMISSION = getPermissionFromMethod(httpMethod, ID);
-                                    return entityPerms.contains(PERMISSION) ? SecurityRuleResult.ALLOWED : SecurityRuleResult.REJECTED;
+                                    if (entityPerms.contains(PERMISSION))
+                                        allow = true;
                                 }
                             }
-                            LOG.info(permissions.toString());
+                            Map<String, Object> routePermissions = (Map<String, Object>) namespacePerms.get("routePermissions");
+                            if (!allow && routePermissions != null) {
+                                Map<String, Object> routePermission = (Map<String, Object>) routePermissions.get(entity);
+                                if (routePermission != null) {
+                                    List<String> routePerm = (List<String>) routePermission.get("permissions");
+                                    String methodName = httpMethod.name();
+                                    if (routePerm.contains(methodName))
+                                        allow = true;
+                                }
+                            }
+                            if (allow)
+                                return SecurityRuleResult.ALLOWED;
                         }
-                        return SecurityRuleResult.REJECTED;
+                        LOG.info(permissions.toString());
                     }
+                    return SecurityRuleResult.REJECTED;
                 }
-
-            } catch (FieldConversionException | EntityFieldNotFoundException | EntityRecordNotFoundException e) {
-                throw new RuntimeException("Unable to execute check", e);
             }
+
+        } catch (FieldConversionException | EntityFieldNotFoundException | EntityRecordNotFoundException e) {
+            throw new RuntimeException("Unable to execute check", e);
         }
+
         return SecurityRuleResult.UNKNOWN;
     }
 

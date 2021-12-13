@@ -138,6 +138,21 @@ public class Entity {
         return ret;
     }
 
+    public boolean hasPathFields(String fieldPath) throws EntityFieldNotFoundException {
+        String[] splitted = fieldPath.split("\\.");
+        Field lastField = getField(splitted[0]);
+        try {
+            for (int i = 1; i < splitted.length; i++) {
+                if (lastField.getType() == Field.Type.OBJECT) {
+                    lastField = getField(lastField.getInnerFields(), splitted[i]);
+                }
+            }
+        } catch (EntityFieldNotFoundException ex) {
+            return false;
+        }
+        return true;
+    }
+
     public static class Builder {
 
         private String name;

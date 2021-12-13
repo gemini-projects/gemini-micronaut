@@ -160,6 +160,14 @@ public class FieldConverter {
             Date dval = (Date) value;
             return dval.toInstant().atZone(ZoneId.of("UTC")).toLocalDateTime();
         }
+        if (List.class.isAssignableFrom(value.getClass())) {
+            try {
+                List<Integer> lo = (List<Integer>) value;
+                return LocalDateTime.of(lo.get(0), lo.get(1), lo.get(2), lo.get(3), lo.get(4), lo.get(5), lo.get(6));
+            } catch (ClassCastException e) {
+                throw new FieldConversionException(field, value, e.getMessage());
+            }
+        }
         try {
             return LocalDateTime.parse(String.valueOf(value));
         } catch (DateTimeParseException exp) {

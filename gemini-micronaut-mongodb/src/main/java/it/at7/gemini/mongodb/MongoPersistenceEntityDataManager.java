@@ -53,6 +53,11 @@ public class MongoPersistenceEntityDataManager implements PersistenceEntityDataM
     }
 
     @Override
+    public DataCountResult countRecords(Entity entity, DataListRequest dataListRequest) {
+        return null;
+    }
+
+    @Override
     public DataListResult<EntityRecord> getRecords(Entity entity, DataListRequest dataListRequest) throws EntityFieldNotFoundException, FieldConversionException {
 
         Bson filter = new Document(); // empty filter, as documentation say

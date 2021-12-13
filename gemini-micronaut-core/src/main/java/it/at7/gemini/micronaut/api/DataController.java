@@ -27,7 +27,7 @@ public class DataController {
 
     @Get
     HttpResponse<GeminiHttpResponse> get(@PathVariable("entity") String entityName, HttpRequest httpRequest) throws EntityNotFoundException, FieldConversionException, EntityFieldNotFoundException, RestMethodNotAllowedException {
-        RequestUtils.crateAndSetTimeLogger(logger, httpRequest, "GET-ENTITY-DATA", entityName);
+        RequestUtils.createAndSetTimeLogger(logger, httpRequest, "GET-ENTITY-DATA", entityName);
         EntityRestConfig restConfiguration = restEntityManager.getRestConfiguration(entityName);
         if (!restConfiguration.getValue().allowedMethods.contains(RawEntityRestConfig.AllowedMethod.GET_LIST))
             throw new RestMethodNotAllowedException(entityName, RawEntityRestConfig.AllowedMethod.GET_LIST.name());
@@ -42,7 +42,7 @@ public class DataController {
     HttpResponse<GeminiHttpResponse> getById(@PathVariable("entity") String entityName,
                                              @PathVariable("id") String id,
                                              HttpRequest httpRequest) throws EntityNotFoundException, EntityRecordNotFoundException, FieldConversionException, RestMethodNotAllowedException {
-        RequestUtils.crateAndSetTimeLogger(logger, httpRequest, "GET-ENTITY-DATA-BYID", entityName + " " + id);
+        RequestUtils.createAndSetTimeLogger(logger, httpRequest, "GET-ENTITY-DATA-BYID", entityName + " " + id);
         EntityRestConfig restConfiguration = restEntityManager.getRestConfiguration(entityName);
         if (!restConfiguration.getValue().allowedMethods.contains(RawEntityRestConfig.AllowedMethod.GET_BYID))
             throw new RestMethodNotAllowedException(entityName, RawEntityRestConfig.AllowedMethod.GET_BYID.name());
@@ -55,7 +55,7 @@ public class DataController {
     HttpResponse<GeminiHttpResponse> post(@PathVariable("entity") String entityName,
                                           @Body DataRequest body,
                                           HttpRequest httpRequest) throws EntityNotFoundException, FieldConversionException, DuplicateLkRecordException, EntityRecordValidationException, EntitySingleRecordException, EntityRecordListValidationException, RestMethodNotAllowedException {
-        RequestUtils.crateAndSetTimeLogger(logger, httpRequest, "POST-ENTITY-DATA", entityName);
+        RequestUtils.createAndSetTimeLogger(logger, httpRequest, "POST-ENTITY-DATA", entityName);
         EntityRestConfig restConfiguration = restEntityManager.getRestConfiguration(entityName);
         if (!restConfiguration.getValue().allowedMethods.contains(RawEntityRestConfig.AllowedMethod.NEW))
             throw new RestMethodNotAllowedException(entityName, RawEntityRestConfig.AllowedMethod.NEW.name());
@@ -80,7 +80,7 @@ public class DataController {
                                              @PathVariable("id") String id,
                                              @Body DataRequest body,
                                              HttpRequest httpRequest) throws EntityNotFoundException, FieldConversionException, EntityFieldNotFoundException, EntityRecordValidationException, RestMethodNotAllowedException {
-        RequestUtils.crateAndSetTimeLogger(logger, httpRequest, "PUT-ENTITY-DATA-BYID", entityName + " " + id);
+        RequestUtils.createAndSetTimeLogger(logger, httpRequest, "PUT-ENTITY-DATA-BYID", entityName + " " + id);
         EntityRestConfig restConfiguration = restEntityManager.getRestConfiguration(entityName);
         if (!restConfiguration.getValue().allowedMethods.contains(RawEntityRestConfig.AllowedMethod.UPDATE))
             throw new RestMethodNotAllowedException(entityName, RawEntityRestConfig.AllowedMethod.UPDATE.name());
@@ -111,7 +111,7 @@ public class DataController {
                                                @PathVariable("id") String id,
                                                @Body DataRequest body,
                                                HttpRequest httpRequest) throws EntityNotFoundException, EntityFieldNotFoundException, FieldConversionException, EntityRecordNotFoundException, RestMethodNotAllowedException {
-        RequestUtils.crateAndSetTimeLogger(logger, httpRequest, "PATCH-ENTITY-DATA-BYID", entityName + " " + id);
+        RequestUtils.createAndSetTimeLogger(logger, httpRequest, "PATCH-ENTITY-DATA-BYID", entityName + " " + id);
         EntityRestConfig restConfiguration = restEntityManager.getRestConfiguration(entityName);
         if (!restConfiguration.getValue().allowedMethods.contains(RawEntityRestConfig.AllowedMethod.UPDATE))
             throw new RestMethodNotAllowedException(entityName, RawEntityRestConfig.AllowedMethod.UPDATE.name());
@@ -126,7 +126,7 @@ public class DataController {
     HttpResponse<GeminiHttpResponse> delete(@PathVariable("entity") String entityName,
                                             @PathVariable("id") String id,
                                             HttpRequest httpRequest) throws EntityNotFoundException, FieldConversionException, EntityRecordNotFoundException, EntitySingleRecordException, RestMethodNotAllowedException {
-        RequestUtils.crateAndSetTimeLogger(logger, httpRequest, "DELETE-ENTITY-DATA-BYID", entityName + " " + id);
+        RequestUtils.createAndSetTimeLogger(logger, httpRequest, "DELETE-ENTITY-DATA-BYID", entityName + " " + id);
         EntityRestConfig restConfiguration = restEntityManager.getRestConfiguration(entityName);
         if (!restConfiguration.getValue().allowedMethods.contains(RawEntityRestConfig.AllowedMethod.DELETE))
             throw new RestMethodNotAllowedException(entityName, RawEntityRestConfig.AllowedMethod.DELETE.name());

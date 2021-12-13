@@ -14,6 +14,12 @@ public class PersistenceEntityDataManagerImpl implements PersistenceEntityDataMa
     private Map<String, Map<String, EntityRecord>> store = new HashMap<>();
 
     @Override
+    public DataCountResult countRecords(Entity entity, DataListRequest dataListRequest) {
+        Map<String, EntityRecord> entityStore = store.getOrDefault(entity.getName(), new HashMap<>());
+        return DataCountResult.fromCount(entityStore.size());
+    }
+
+    @Override
     public DataListResult<EntityRecord> getRecords(Entity entity, DataListRequest dataListRequest) throws FieldConversionException {
         List<EntityRecord> list = new ArrayList<>();
         for (EntityRecord entityRecord : store.get(entity.getName()).values()) {

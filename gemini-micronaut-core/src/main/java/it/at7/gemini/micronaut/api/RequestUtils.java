@@ -30,7 +30,7 @@ public class RequestUtils {
         return errorBody;
     }
 
-    public static TimeWatchLogger crateAndSetTimeLogger(Logger logger, HttpRequest httpRequest, String tag, String message) {
+    public static TimeWatchLogger createAndSetTimeLogger(Logger logger, HttpRequest httpRequest, String tag, String message) {
         TimeWatchLogger tlogger = TimeWatchLogger.info(logger, tag, message);
         httpRequest.setAttribute("TIME_LOGGER", tlogger);
         return tlogger;
@@ -57,12 +57,12 @@ public class RequestUtils {
     }
 
     public static HttpResponse<GeminiHttpResponse> readyResponse(DataResult<EntityRecord> result, HttpRequest request) {
-        Map<String, Object> bodyData = result.getData().getData();
+        Map<String, Object> bodyData = ResponseConverter.convert(result.getData());
         return readyResponse(result, bodyData, request);
     }
 
     public static HttpResponse<GeminiHttpResponse> readyResponse(DataListResult<EntityRecord> result, HttpRequest request) {
-        List<Map<String, Object>> bodyData = result.getData().stream().map(EntityRecord::getData).collect(Collectors.toList());
+        List<Map<String, Object>> bodyData = result.getData().stream().map(ResponseConverter::convert).collect(Collectors.toList());
         return readyResponse(result, bodyData, request);
     }
 
