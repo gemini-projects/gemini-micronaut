@@ -20,6 +20,7 @@ import org.junit.jupiter.api.TestInstance;
 import javax.inject.Inject;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @MicronautTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -35,11 +36,14 @@ class DataControllerDELETE_Test {
     @Inject
     EntityManager entityManager;
 
+    String random;
+
     @BeforeAll
     void addSomeData() throws Exception {
         EntityDataManager basetypes = entityManager.getDataManager("basetypes");
+        random = UUID.randomUUID().toString();
 
-        basetypes.add(Map.of("stringField", "delete_lk",
+        basetypes.add(Map.of("stringField", "delete_lk" + random,
                 "enumField", "E1",
                 "booleanField", true));
     }
@@ -48,19 +52,19 @@ class DataControllerDELETE_Test {
     void deleteById_allFields() throws EntityNotFoundException {
 
         // put change all field (not logical key)
-        HttpResponse<GeminiHttpResponse> resp = client.toBlocking().exchange(HttpRequest.DELETE("/basetypes/delete_lk"), GeminiHttpResponse.class);
+        HttpResponse<GeminiHttpResponse> resp = client.toBlocking().exchange(HttpRequest.DELETE("/basetypes/delete_lk" + random), GeminiHttpResponse.class);
         Assertions.assertEquals(resp.getStatus(), HttpStatus.OK);
         Optional<GeminiHttpResponse> body = resp.getBody();
         Assertions.assertTrue(body.isPresent());
         GeminiHttpResponse gr = body.get();
         Map<String, Object> record = (Map<String, Object>) gr.getData();
         Assertions.assertNotNull(record);
-        Assertions.assertEquals("delete_lk", record.get("stringField"));
+        Assertions.assertEquals("delete_lk" + random, record.get("stringField"));
         Assertions.assertEquals("E1", record.get("enumField"));
         Assertions.assertEquals(true, record.get("booleanField"));
 
         EntityDataManager basetypes = entityManager.getDataManager("basetypes");
-        Assertions.assertThrows(EntityRecordNotFoundException.class, () -> basetypes.getRecord("delete_lk"));
+        Assertions.assertThrows(EntityRecordNotFoundException.class, () -> basetypes.getRecord("delete_lk" + random));
     }
 
     @Test

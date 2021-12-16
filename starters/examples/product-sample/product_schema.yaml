@@ -1,0 +1,48 @@
+# EXAMPLE - PRODUCT SCHEMA DEFINITION
+
+### ENTITY: PRODUCT CATEGORY
+type: ENTITY
+entity:
+  name: CATEGORY
+  displayName: Category
+  lk: [id]
+  fields:
+    - name: id
+      type: STRING
+      required: true
+    - name: description
+      type: STRING
+
+---
+
+### ENTITY: PRODUCT
+type: ENTITY
+entity:
+  name: PRODUCT
+  displayName: Product
+  lk: [id]
+  fields:
+    - name: id
+      type: STRING
+      required: true
+    - name: name
+      type: STRING
+    - name: description
+      type: STRING
+    - name: available
+      type: BOOL
+    - name: status
+      type: ENUM
+      enums: [DRAFT, PENDING, PRIVATE, PUBLISH]
+    - name: regular_price
+      type: DOUBLE
+    - name: sale_price
+      type: DOUBLE
+    - name: categories
+      type: ARRAY
+      array:
+        type: ENTITY_REF
+        entityRef:
+          entity: CATEGORY
+
+
