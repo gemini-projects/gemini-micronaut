@@ -39,6 +39,7 @@
         <module>gemini-micronaut-auth</module>
         <module>gemini-micronaut-mongodb</module>
         <module>gemini-micronaut-adminspa</module>
+        <module>starters/gemini-micronaut-mongodb-restapi</module>
     </modules>
 
 </project>

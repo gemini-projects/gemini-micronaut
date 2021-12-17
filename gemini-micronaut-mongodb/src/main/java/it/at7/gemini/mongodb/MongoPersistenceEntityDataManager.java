@@ -53,22 +53,17 @@ public class MongoPersistenceEntityDataManager implements PersistenceEntityDataM
     }
 
     @Override
-    public DataCountResult countRecords(Entity entity, DataListRequest dataListRequest) {
-        return null;
+    public DataCountResult countRecords(Entity entity, DataListRequest dataListRequest) throws EntityFieldNotFoundException {
+        Bson filter = createFilter(entity, dataListRequest);
+        String entityCollectionName = getEntityCollectionName(entity);
+        MongoCollection<Document> collection = this.db.getCollection(entityCollectionName);
+        long counter = collection.countDocuments(filter);
+        return DataCountResult.fromCount(counter);
     }
 
     @Override
     public DataListResult<EntityRecord> getRecords(Entity entity, DataListRequest dataListRequest) throws EntityFieldNotFoundException, FieldConversionException {
-
-        Bson filter = new Document(); // empty filter, as documentation say
-        List<DataListRequest.Filter> reqFilters = dataListRequest.getFilters();
-        if (!reqFilters.isEmpty()) {
-            List<Bson> mongoFilters = new ArrayList<>();
-            for (DataListRequest.Filter f : reqFilters) {
-                mongoFilters.add(fieldFilter(entity, f));
-            }
-            filter = Filters.and(mongoFilters);
-        }
+        Bson filter = createFilter(entity, dataListRequest);
         String entityCollectionName = getEntityCollectionName(entity);
         MongoCollection<Document> collection = this.db.getCollection(entityCollectionName);
 
@@ -93,6 +88,19 @@ public class MongoPersistenceEntityDataManager implements PersistenceEntityDataM
         }
 
         return DataListResult.from(res);
+    }
+
+    private Bson createFilter(Entity entity, DataListRequest dataListRequest) throws EntityFieldNotFoundException {
+        Bson filter = new Document(); // empty filter, as documentation say
+        List<DataListRequest.Filter> reqFilters = dataListRequest.getFilters();
+        if (!reqFilters.isEmpty()) {
+            List<Bson> mongoFilters = new ArrayList<>();
+            for (DataListRequest.Filter f : reqFilters) {
+                mongoFilters.add(fieldFilter(entity, f));
+            }
+            filter = Filters.and(mongoFilters);
+        }
+        return filter;
     }
 
 

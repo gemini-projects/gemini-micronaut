@@ -40,7 +40,7 @@ class DataControllerPOST_Test {
                 entry("enumField", "E1"),
                 entry("intField", 42),
                 entry("doubleField", 42.4242424242424242),
-                entry("dateField", List.of(2021, 2, 28)),
+                entry("dateField", "2021-02-28"),
                 entry("objectField", Map.of("st", "inner string")),
                 entry("dictField", Map.of("dictkey1", Map.of("st", "dictValueSt"))),
                 entry("selectField", "S1"),

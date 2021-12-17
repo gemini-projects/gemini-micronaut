@@ -45,7 +45,7 @@ class DataControllerPOST_DateTime_Test {
         Assertions.assertTrue(body.isPresent());
         GeminiHttpResponse geminiHttpResponse = body.get();
         Map<String, Object> data = (Map<String, Object>) geminiHttpResponse.getData();
-        Assertions.assertEquals(List.of(2011, 12, 3, 10, 15, 30), data.get("dateTimeField"));
+        Assertions.assertEquals("2011-12-03T10:15:30Z", data.get("dateTimeField"));
     }
 
     @Test
@@ -62,6 +62,6 @@ class DataControllerPOST_DateTime_Test {
         GeminiHttpResponse geminiHttpResponse = body.get();
         Map<String, Object> data = (Map<String, Object>) geminiHttpResponse.getData();
         // hour is 9 because we POST +01 time zone, and the result is always in UTC
-        Assertions.assertEquals(List.of(2011, 12, 3, 9, 15, 30), data.get("dateTimeField"));
+        Assertions.assertEquals("2011-12-03T09:15:30Z", data.get("dateTimeField"));
     }
 }

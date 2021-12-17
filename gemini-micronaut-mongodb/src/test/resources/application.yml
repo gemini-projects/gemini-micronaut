@@ -1,2 +1,5 @@
 gemini.test-module: gemini-micronaut-mongodb
 gemini.auth.datamanager: custom
+gemini.namespace: test
+
+micronaut.security.enabled: false

@@ -1,0 +1,46 @@
+gemini.mongodb.url: ${GEMINI_MONGODB_URL}
+gemini.mongodb.db: ${GEMINI_MONGODB_DB}
+gemini.namespace: ${GEMINI_NAMESPACE:default}
+
+gemini.entity.schema.resources: ${GEMINI_SCHEMAS}
+
+#gemini.auth.datamanager: custom
+#gemini.auth.datamanager.mongodb.url: ${GEMINI_AUTH_MONGODB_URL:}
+#gemini.auth.datamanager.mongodb.db: ${GEMINI_AUTH_MONGODB_DB:}
+
+micronaut.server.cors.enabled: true
+
+micronaut.security.enabled: ${AUTH_ENABLED:false}
+micronaut:
+  security:
+    authentication: idtoken
+    basic-auth:
+      enabled: ${BASICAUTH_ENABLED}
+    intercept-url-map:
+      - pattern: /schema
+        access:
+          - isAuthenticated()
+      - pattern: /summary
+        http-method: GET
+        access:
+          - isAuthenticated()
+    #redirect:
+    #  login-success: http://127.0.0.1:3000
+
+    endpoints:
+      logout:
+        get-allowed: true
+
+    oauth2:
+      enabled: ${OAUTH2_ENABLED:false}
+      clients:
+        google:
+          client-id: ${GOOGLE_OAUTH_CLIENT_ID}
+          client-secret: ${GOOGLE_OAUTH_SECRET}
+          openid:
+            issuer: 'https://accounts.google.com'
+    token:
+      enabled: true
+      jwt:
+        cookie:
+          cookie-http-only: false
