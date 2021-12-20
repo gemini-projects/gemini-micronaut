@@ -3,7 +3,6 @@ package it.at7.gemini.micronaut.core;
 import io.micronaut.http.HttpParameters;
 import io.micronaut.http.HttpRequest;
 
-import javax.swing.text.html.Option;
 import java.util.*;
 
 public class DataListRequest {
@@ -55,19 +54,21 @@ public class DataListRequest {
             int i;
             for (i = key.length() - 2; i >= 0; i--) {
                 char c = key.charAt(i);
-                if(c == '[' ) {
+                if (c == '[') {
                     break;
                 }
                 ope.append(c);
             }
             field = key.substring(0, i);
             String opeSt = ope.reverse().toString();
-            if(!opeSt.isEmpty()) {
+            if (!opeSt.isEmpty()) {
                 // TODO maybe arrays ?
                 try {
                     ope_type = OPE_TYPE.valueOf(opeSt.toUpperCase());
                 } catch (IllegalArgumentException e) {
                     // do nothing, ignore the filter if wrong
+                    if (opeSt.equals("!") || opeSt.toUpperCase().equals("NOT"))
+                        ope_type = OPE_TYPE.NOT_EQUALS;
                 }
             }
         }
@@ -241,9 +242,13 @@ public class DataListRequest {
 
     public enum OPE_TYPE {
         EQUALS,
+        NOT_EQUALS,
         CONTAINS,
+        NOT_CONTAINS,
         GTE,
-        LTE
+        GT,
+        LTE,
+        LT
     }
 
     public enum ORDER_TYPE {

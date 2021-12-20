@@ -69,11 +69,9 @@ public class MongoPersistenceEntityDataManager implements PersistenceEntityDataM
 
         FindIterable<Document> documents = collection.find(filter);
 
-
         for (DataListRequest.Order order : dataListRequest.getOrders()) {
             fieldSorter(documents, entity, order);
         }
-
 
         if (dataListRequest.getLimit() > 0) {
             documents.limit(dataListRequest.getLimit());
