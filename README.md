@@ -1,7 +1,7 @@
 # Gemini Micronaut
 
-Gemini Micronaut is the backend part of the Gemini Framework. It's built on top of Micronaut provinding
-an easy way to create powerfull ***REST APIs*** using a ***Domain Driven Design*** approach.
+Gemini Micronaut is the backend part of the Gemini Framework. It's built on top of Micronaut providing
+an easy way to create powerful ***REST APIs*** using a ***Domain Driven Design*** approach.
 
 ## How it works
 The starting point of Gemini is the *Gemini Schema*, by using a *Domain Driven Design* approach developers can
