@@ -23,7 +23,7 @@ public class PersistedEntityRecord extends EntityRecord {
             Field ft = ret.get().getKey();
             Object storedValue = ret.get().getValue();
             if (this.getEntity().isLk(field)) {
-                if (this.lastLk.containsKey(field))
+                if (this.lastLk.containsKey(field) && !this.lastLk.get(field).equals(storedValue))
                     this.changedLkFields.add(ft.getName());
                 else
                     lastLk.put(ft.getName(), storedValue);
@@ -44,12 +44,14 @@ public class PersistedEntityRecord extends EntityRecord {
             Object fieldOriginalValue = lastLk.get(lkField.getName());
             if (fieldOriginalValue == null)
                 fieldOriginalValue = super.getData().get(lkField.getName());
-            String stValue = FieldConverter.toStringValue(lkField, fieldOriginalValue, separator);
-            if (!stValue.isEmpty()) {
-                if (!isFirst)
-                    res.append(separator);
-                res.append(stValue);
-                isFirst = false;
+            if(fieldOriginalValue != null) {
+                String stValue = FieldConverter.toStringValue(lkField, fieldOriginalValue, separator);
+                if (!stValue.isEmpty()) {
+                    if (!isFirst)
+                        res.append(separator);
+                    res.append(stValue);
+                    isFirst = false;
+                }
             }
         }
         return res.toString();
