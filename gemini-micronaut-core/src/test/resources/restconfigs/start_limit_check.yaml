@@ -1,0 +1,7 @@
+type: ENTITY
+entity: BASETYPES
+config:
+  allowedMethods: [GET_LIST]
+  getListStrategy: START_LIMIT
+  defaultLimit: 2
+  maxWindow: 100

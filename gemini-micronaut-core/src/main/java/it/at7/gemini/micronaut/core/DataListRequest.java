@@ -78,6 +78,7 @@ public class DataListRequest {
     public static DataListRequest from(HttpRequest httpRequest) {
         HttpParameters parameters = httpRequest.getParameters();
         Builder builder = new Builder();
+
         for (Map.Entry<String, List<String>> param : parameters.asMap().entrySet()) {
             String key = param.getKey();
             List<String> value = param.getValue();
@@ -92,7 +93,7 @@ public class DataListRequest {
             }
 
             if (field.equals("quickFilterFields")) {
-                builder.addQuickFilterField(value.get(0));
+                builder.addQuickFilterField(value);
                 continue;
             }
 
@@ -124,12 +125,26 @@ public class DataListRequest {
                 continue;
             }
 
-            for (String sval : value) {
-                builder.addFilter(field, ope_type, sval);
+            if (value.size() > 1) {
+                builder.addFilter(field, ope_type, value);
+            } else {
+                builder.addFilter(field, ope_type, value.get(0));
             }
         }
 
         return builder.build();
+    }
+
+    public static Builder builder(DataListRequest listRequest) {
+        Builder builder = new Builder();
+        builder.addStart(listRequest.getStart());
+        builder.addLimit(listRequest.getLimit());
+        if (listRequest.getQuickFilter().isPresent())
+            builder.addQuickFilter(listRequest.getQuickFilter().get());
+        builder.addQuickFilterField(listRequest.getQuickFilterFields());
+        builder.addFilters(listRequest.getFilters());
+        builder.addOrders(listRequest.getOrders());
+        return builder;
     }
 
     public static Builder builder() {
@@ -147,29 +162,44 @@ public class DataListRequest {
         private Builder() {
         }
 
-        public Builder addFilter(String field, OPE_TYPE ope_type, String sval) {
-            filters.add(Filter.of(field, ope_type, sval));
+        public Builder addFilter(String field, OPE_TYPE ope_type, Object val) {
+            filters.add(Filter.of(field, ope_type, val));
             return this;
         }
 
-        public void addStart(int start) {
+        public Builder addStart(int start) {
             this.start = start;
+            return this;
         }
 
-        public void addLimit(int limit) {
+        public Builder addLimit(int limit) {
             this.limit = limit;
+            return this;
         }
 
-        public void addOrderBy(String sortField, ORDER_TYPE order) {
+        public Builder addOrderBy(String sortField, ORDER_TYPE order) {
             orders.add(Order.of(sortField, order));
+            return this;
         }
 
-        public void addQuickFilter(String filter) {
+        public Builder addQuickFilter(String filter) {
             this.quickFilter = filter;
+            return this;
         }
 
-        public void addQuickFilterField(String s) {
-            this.quickFilterFields.add(s);
+        public Builder addQuickFilterField(Collection<String> s) {
+            this.quickFilterFields.addAll(s);
+            return this;
+        }
+
+        public Builder addFilters(List<Filter> filters) {
+            this.filters.addAll(filters);
+            return this;
+        }
+
+        public Builder addOrders(List<Order> orders) {
+            this.orders.addAll(orders);
+            return this;
         }
 
         public DataListRequest build() {
@@ -248,7 +278,10 @@ public class DataListRequest {
         GTE,
         GT,
         LTE,
-        LT
+        LT,
+        STARTS_WITH,
+        ENDS_WITH,
+        OR,
     }
 
     public enum ORDER_TYPE {

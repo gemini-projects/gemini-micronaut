@@ -22,9 +22,13 @@ public class PersistenceEntityDataManagerImpl implements PersistenceEntityDataMa
     @Override
     public DataListResult<EntityRecord> getRecords(Entity entity, DataListRequest dataListRequest) throws FieldConversionException {
         List<EntityRecord> list = new ArrayList<>();
-        for (EntityRecord entityRecord : store.get(entity.getName()).values()) {
+        int count = 0;
+        for (EntityRecord entityRecord : store.getOrDefault(entity.getName(), Map.of()).values()) {
             EntityRecord from = PersistedEntityRecord.from(entityRecord);
             list.add(from);
+            count++;
+            if(dataListRequest.getLimit() > 0 && count >= dataListRequest.getLimit())
+                break;
         }
         return DataListResult.from(List.copyOf(list));
     }

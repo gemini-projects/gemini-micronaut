@@ -22,7 +22,13 @@ public class EntityRestConfig {
     }
 
     public DataListRequest checkAndValidate(DataListRequest listRequest) {
-        // TODO update pagination limit and so on with RestCOnfiguration for the entity
-        return listRequest;
+        DataListRequest.Builder builder = DataListRequest.builder(listRequest);
+        if (value.getListStrategy.equals(RawEntityRestConfig.GetListStrategy.START_LIMIT)) {
+            if(listRequest.getLimit() == 0)
+                builder.addLimit(value.defaultLimit);
+            if(listRequest.getStart() > value.maxWindow)
+                throw new RuntimeException("start > maxWindow");
+        }
+        return builder.build();
     }
 }
