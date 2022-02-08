@@ -388,3 +388,24 @@ curl "http://localhost:8080/entity/product/recordCounts?available=true"
 curl "http://localhost:8080/entity/product/recordCounts?available=false"
 {"status":"success","data":{"count":0},"meta":{"elapsedTime":"42ms"}}
 ```
+
+## Step 5 - Pagination
+
+### The ***start*** and ***limit*** parameters
+Gemini provide pagination out of the box for all the entities. Just use the ***start*** and the ***limit*** query string parameters to provide page size a navigate among pages and records. You can decide the pagesize by yourself with ***limit*** and go to the next page with ***start***.
+
+For example if you want pages of 10 elements just use ***?limit=10&start=0*** for the first page and ***?limit=10&start=10*** for the second page.
+
+Some examples:
+
+```shell
+# First page of 2 elements for the category Entity
+curl "http://localhost:8080/data/category/?start=0&limit=2"
+{"status":"success","data":[{"description":"Technology","id":"tech-1"},{"description":"Smartphone","id":"smartphone-1"}],"meta":{"elapsedTime":"37ms"}}
+
+# Continue with the page number 2
+curl "http://localhost:8080/data/category/?start=2&limit=2"
+{"status":"success","data":[{"description":"Clothing","id":"clothing-1"},{"description":"beauty","id":"beauty-1"}],"meta":{"elapsedTime":"236ms"}}
+```
+
+Of course you can combine pagination with other features like ***filters*** and ***sorting***.
