@@ -409,3 +409,48 @@ curl "http://localhost:8080/data/category/?start=2&limit=2"
 ```
 
 Of course you can combine pagination with other features like ***filters*** and ***sorting***.
+
+### Big Entities
+
+Usually you don't want to allow the GET ALL data API for very big entities (with thousands or millions records). In this sistuation you want the pagination to work as default behaviour. You can achieve this goal providing a ***REST configuration*** and specifying the default ***limit***.
+
+#### The Rest Configuration
+The Rest Configuration is another simple YAML file that you can provide to the Gemini service. For example let's enable only the pagination for the *Product* entity.
+
+```yaml
+type: ENTITY
+entity: PRODUCT
+config:
+  getListStrategy: START_LIMIT
+  defaultLimit: 5
+```
+
+#### Run the Image with the Rest Configuration
+We have a new file *restconfig.yaml* that we specify as GEMINI_REST_CONFIGS env variable and mount it starting from the current directory.
+
+```shell
+docker run -p 8080:8080 \
+        -e GEMINI_SCHEMAS=/schemas/product_schema.yaml \
+        -e GEMINI_REST_CONFIGS=/rest/restconfig.yaml \
+        -e GEMINI_MONGODB_URL="mongodb+srv://root:KK4b5sKopoyGDIy3@cluster0.9thyu.mongodb.net/db?retryWrites\=true&w\=majority" \
+        -e GEMINI_MONGODB_DB=testdb_1 \
+        -v $(pwd)/product_schema.yaml:/schemas/product_schema.yaml:ro \
+        -v $(pwd)/restconfig.yaml:/rest/restconfig.yaml:ro \
+        aat7/gemini-micronaut-mongodb-restapi
+```
+
+#### Test the GET ALL API
+
+Let's make a simple call to the *Product* root. As you can see from the curl command, the count API returns 560 records.
+
+```shell
+curl "http://localhost:8080/entity/product/recordCounts"
+{"status":"success","data":{"count":560},"meta":{"elapsedTime":"57ms"}}
+```
+
+Now let's make a GET call to the the Products root. We don't add the ***limit*** parameter but the framework automatically assign to the API the ***limit=5***. Just take a look at the result, and the ***limit*** field inside the ***meta*** response body object (at the end of the JSON response).
+
+```shell
+curl "http://localhost:8080/data/product/"
+{"status":"success","data":[{"regular_price":799.0,"name":"Iphone 13 128 GB Blue","available":true,"description":"Apple Iphone 13 - Memory: 128 GB - Color: Blue","id":"iphone-13-128-blue","categories":["tech-1","smartphone-1"],"sale_price":699.0,"status":"PUBLISH"},{"regular_price":799.0,"name":"Iphone 13 128 GB Starlight","available":true,"description":"Apple Iphone 13 - Memory: 128 GB - Color: Starlight","id":"iphone-13-128-starlight","categories":["tech-1","smartphone-1"],"sale_price":699.0,"status":"PUBLISH"},{"regular_price":799.0,"name":"Iphone 13 128 GB Midnight","available":true,"description":"Apple Iphone 13 - Memory: 128 GB - Color: Midnight","id":"iphone-13-128-midnight","categories":["tech-1","smartphone-1"],"sale_price":699.0,"status":"PUBLISH"},{"regular_price":799.0,"name":"Iphone 13 128 GB Pink","available":true,"description":"Apple Iphone 13 - Memory: 128 GB - Color: Pink","id":"iphone-13-128-pink","categories":["tech-1","smartphone-1"],"sale_price":699.0,"status":"PUBLISH"},{"regular_price":799.0,"name":"Iphone 13 128 GB Red","available":true,"description":"Apple Iphone 13 - Memory: 128 GB - Color: Product RED","id":"iphone-13-128-red","categories":["tech-1","smartphone-1"],"sale_price":699.0,"status":"PUBLISH"}],"meta":{"limit":5,"start":0,"elapsedTime":"43ms"}}
+```
