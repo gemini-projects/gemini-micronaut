@@ -1,0 +1,8 @@
+# REST RESOURCES CONFIGURATION DEFINITION
+
+type: ENTITY
+entity: PRODUCT
+config:
+  getListStrategy: START_LIMIT
+  defaultLimit: 5
+

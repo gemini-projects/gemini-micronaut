@@ -24,9 +24,9 @@ public class EntityRestConfig {
     public DataListRequest checkAndValidate(DataListRequest listRequest) {
         DataListRequest.Builder builder = DataListRequest.builder(listRequest);
         if (value.getListStrategy.equals(RawEntityRestConfig.GetListStrategy.START_LIMIT)) {
-            if(listRequest.getLimit() == 0)
+            if (listRequest.getLimit() == 0)
                 builder.addLimit(value.defaultLimit);
-            if(listRequest.getStart() > value.maxWindow)
+            if (value.maxWindow != null && listRequest.getStart() > value.maxWindow)
                 throw new RuntimeException("start > maxWindow");
         }
         return builder.build();

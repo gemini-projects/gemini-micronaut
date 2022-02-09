@@ -3,7 +3,7 @@ gemini.mongodb.db: ${GEMINI_MONGODB_DB}
 gemini.namespace: ${GEMINI_NAMESPACE:default}
 
 gemini.entity.schema.resources: ${GEMINI_SCHEMAS}
-
+gemini.entity.restConfig.resources: ${GEMINI_REST_CONFIGS}
 #gemini.auth.datamanager: custom
 #gemini.auth.datamanager.mongodb.url: ${GEMINI_AUTH_MONGODB_URL:}
 #gemini.auth.datamanager.mongodb.db: ${GEMINI_AUTH_MONGODB_DB:}

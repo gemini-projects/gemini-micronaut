@@ -35,7 +35,7 @@ public class DataController {
         DataListRequest listRequest = DataListRequest.from(httpRequest);
         DataListRequest managedListRequest = restConfiguration.checkAndValidate(listRequest);
         DataListResult<EntityRecord> records = entityDataManager.getRecords(managedListRequest);
-        return RequestUtils.readyResponse(records, httpRequest);
+        return RequestUtils.readyResponse(records, httpRequest, managedListRequest);
     }
 
     @Get("/{+id}")

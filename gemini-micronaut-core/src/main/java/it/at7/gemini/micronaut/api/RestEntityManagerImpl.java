@@ -91,6 +91,7 @@ public class RestEntityManagerImpl implements RestEntityManager {
         RawEntityRestConfig.Config config = new RawEntityRestConfig.Config();
         config.getListStrategy = defaultGetListStrategy;
         config.allowedMethods = defaultAllowedMethods;
+        config.defaultLimit = defaultLimit;
         return config;
     }
 }

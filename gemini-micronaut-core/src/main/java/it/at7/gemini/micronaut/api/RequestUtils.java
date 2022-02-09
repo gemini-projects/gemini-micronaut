@@ -58,22 +58,26 @@ public class RequestUtils {
 
     public static HttpResponse<GeminiHttpResponse> readyResponse(DataResult<EntityRecord> result, HttpRequest request) {
         Map<String, Object> bodyData = ResponseConverter.convert(result.getData());
-        return readyResponse(result, bodyData, request);
+        return readyResponse(result, bodyData, request, null);
     }
 
-    public static HttpResponse<GeminiHttpResponse> readyResponse(DataListResult<EntityRecord> result, HttpRequest request) {
+    public static HttpResponse<GeminiHttpResponse> readyResponse(DataListResult<EntityRecord> result, HttpRequest request, @Nullable DataListRequest dataListRequest) {
         List<Map<String, Object>> bodyData = result.getData().stream().map(ResponseConverter::convert).collect(Collectors.toList());
-        return readyResponse(result, bodyData, request);
+        return readyResponse(result, bodyData, request, dataListRequest);
     }
 
 
-    private static HttpResponse<GeminiHttpResponse> readyResponse(CommonResult result, Object dataBody, HttpRequest request) {
+    private static HttpResponse<GeminiHttpResponse> readyResponse(CommonResult result, Object dataBody, HttpRequest request, @Nullable DataListRequest dataListRequest) {
         GeminiHttpResponse responseBody = GeminiHttpResponse.success(dataBody);
         MutableHttpResponse<GeminiHttpResponse> resp = okResponse(responseBody);
         result.getLastUpdateTime().ifPresent(updatedTime -> {
             responseBody.addLastUpdate(updatedTime);
             resp.header(HttpHeaders.ETAG, String.valueOf(updatedTime));
         });
+        if (dataListRequest != null & dataListRequest.getLimit() > 0) {
+            responseBody.addMeta("limit", dataListRequest.getLimit());
+            responseBody.addMeta("start", dataListRequest.getStart());
+        }
         Optional<TimeWatchLogger> time_logger = request.getAttribute("TIME_LOGGER", TimeWatchLogger.class);
         time_logger.ifPresent(t -> responseBody.addElapsedTime(t.info("Response Ready")));
         return resp;

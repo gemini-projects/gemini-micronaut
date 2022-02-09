@@ -73,6 +73,10 @@ public class MongoPersistenceEntityDataManager implements PersistenceEntityDataM
             fieldSorter(documents, entity, order);
         }
 
+        if (dataListRequest.getStart() > 0) {
+            documents.skip(dataListRequest.getStart());
+        }
+
         if (dataListRequest.getLimit() > 0) {
             documents.limit(dataListRequest.getLimit());
         }
