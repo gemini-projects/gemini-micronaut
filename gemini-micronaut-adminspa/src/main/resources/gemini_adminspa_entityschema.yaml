@@ -143,22 +143,20 @@ entity:
           - name: component
             type: STRING
           - name: props
-            type: ARRAY
-            array:
-              type: OBJECT
-              object:
-                fields:
-                  - name: type
-                    type: SELECT
-                    select:
-                      elems:
-                        - value: STRING
-                          displayName: String
-                        - value: INTEGER
-                          displayName: Integer
-                        - value: DOUBLE
-                          displayName: Double
-                  - name: value
-                    type: ANY
-                    any:
-                      typeField: type
+            type: DICTIONARY
+            dict:
+              fields:
+                - name: type
+                  type: SELECT
+                  select:
+                    elems:
+                      - value: STRING
+                        displayName: String
+                      - value: INTEGER
+                        displayName: Integer
+                      - value: DOUBLE
+                        displayName: Double
+                - name: value
+                  type: ANY
+                  any:
+                    typeField: type

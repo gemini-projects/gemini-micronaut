@@ -90,7 +90,7 @@ public class FieldConverter {
                 return null;
             Map<String, Object> objVal = new HashMap<>();
             for (Map.Entry<String, Field> entry : field.getInnerFields().entrySet()) {
-                objVal.put(entry.getKey(), toValue(entry.getValue(), mapValue.get(entry.getKey())));
+                objVal.put(entry.getValue().getName(), toValue(entry.getValue(), mapValue.get(entry.getValue().getName())));
             }
             return objVal;
         }

@@ -74,7 +74,7 @@ public class RequestUtils {
             responseBody.addLastUpdate(updatedTime);
             resp.header(HttpHeaders.ETAG, String.valueOf(updatedTime));
         });
-        if (dataListRequest != null & dataListRequest.getLimit() > 0) {
+        if (dataListRequest != null && dataListRequest.getLimit() > 0) {
             responseBody.addMeta("limit", dataListRequest.getLimit());
             responseBody.addMeta("start", dataListRequest.getStart());
         }
