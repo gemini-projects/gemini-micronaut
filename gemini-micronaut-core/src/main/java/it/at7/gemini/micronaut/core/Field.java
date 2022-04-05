@@ -54,7 +54,7 @@ public class Field {
             CheckArgument.notEmpty(entityRefName, "Entity Ref Name required for ENTITY_REF type");
         }
         this.enums = enums != null ? List.copyOf(enums) : List.of();
-        this.innerFields = innerFields != null ? innerFields.stream().collect(Collectors.toMap(f -> normalizeName(f.getName()), f -> f)) : Map.of();
+        this.innerFields = innerFields != null ? innerFields.stream().collect(Collectors.toMap(Field::getName, f -> f)) : Map.of();
         this.anyTypeField = anyTypeField;
     }
 

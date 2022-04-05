@@ -206,7 +206,7 @@ public class Entity {
 
     private Field getField(Map<String, Field> fields, String field) throws EntityFieldNotFoundException {
         CheckArgument.notEmpty(field, "Entity: please provide a valid field");
-        Field f = fields.get(normalizeFieldName(field));
+        Field f = fields.get(field);
         if (f == null)
             throw new EntityFieldNotFoundException(field, this);
         return f;
