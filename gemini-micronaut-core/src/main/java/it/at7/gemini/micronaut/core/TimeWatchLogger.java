@@ -5,11 +5,12 @@ import org.slf4j.Logger;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class TimeWatchLogger {
-    private static long ID_MAX = 10000000L;
-    private static Map<String, AtomicLong> logIDS = new HashMap<>();
+    private final static long ID_MAX = 10000000L;
+    private final static Map<String, AtomicLong> logIDS = new ConcurrentHashMap<>();
 
     private final Logger logger;
     private final String tag;

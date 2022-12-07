@@ -5,7 +5,7 @@
     <parent>
         <artifactId>gemini-micronaut</artifactId>
         <groupId>it.at7.gemini.micronaut</groupId>
-        <version>0.6.0-SNAP</version>
+        <version>0.6.4</version>
         <relativePath>../..</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>

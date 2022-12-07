@@ -77,10 +77,12 @@ public class FieldConverter {
     private static Boolean boolValue(Object value) {
         if (value instanceof Boolean) {
             return (Boolean) value;
-        } else {
-            String stValue = String.valueOf(value);
-            return Boolean.parseBoolean(stValue);
         }
+        if (value instanceof Number) {
+            return ((Number) value).intValue() > 0;
+        }
+        String stValue = String.valueOf(value);
+        return Boolean.parseBoolean(stValue);
     }
 
     private static Object objectValue(Field field, Object value) throws FieldConversionException {

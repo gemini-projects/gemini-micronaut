@@ -32,8 +32,13 @@ public class EntityRecord {
     }
 
     @Nullable
-    public Object get(String field) {
+    public Object getObject(String field) {
         return store.get(field);
+    }
+
+    @Nullable
+    public <T> T get(String field) {
+        return (T) store.get(field);
     }
 
     public String getLkString() throws FieldConversionException {
@@ -47,7 +52,7 @@ public class EntityRecord {
         boolean isFirst = true;
         this.entity.getLkFields().iterator();
         for (Field lkField : this.entity.getLkFields()) {
-            Object value = get(lkField.getName());
+            Object value = getObject(lkField.getName());
             if (value != null) {
                 String stValue = FieldConverter.toStringValue(lkField, value, separator);
                 if (!stValue.isEmpty()) {
