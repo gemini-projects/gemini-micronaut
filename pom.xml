@@ -9,7 +9,7 @@
     <groupId>it.at7.gemini.micronaut</groupId>
     <artifactId>gemini-micronaut</artifactId>
     <packaging>pom</packaging>
-    <version>0.6.4</version>
+    <version>0.7.0</version>
 
     <parent>
         <groupId>io.micronaut</groupId>

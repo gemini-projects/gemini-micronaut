@@ -222,7 +222,7 @@ public class GeminiPermissionSecurityRule implements SecurityRule {
 
     private String getAccount(Object issuer, Map<String, Object> claims) {
         String iss = issuer.toString();
-        if (iss.equals(GOOGLE_ISS)) {
+        if (iss.contains(GOOGLE_ISS)) {
             Object emailObk = claims.get("email");
             if (emailObk == null) {
                 if (LOG.isTraceEnabled()) {

@@ -10,7 +10,7 @@
     <parent>
         <groupId>it.at7.gemini.micronaut</groupId>
         <artifactId>gemini-micronaut</artifactId>
-        <version>0.6.4</version>
+        <version>0.7.0</version>
     </parent>
 
     <dependencyManagement>
@@ -29,7 +29,7 @@
         <dependency>
             <groupId>it.at7.gemini.micronaut</groupId>
             <artifactId>gemini-micronaut-core</artifactId>
-            <version>0.6.4</version>
+            <version>0.7.0</version>
         </dependency>
         <dependency>
             <groupId>com.google.firebase</groupId>
